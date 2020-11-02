@@ -87,6 +87,11 @@ public class MainActivity extends AppCompatActivity {
 
                         break;
                     case R.id.five_day_menu_item:
+
+                        if(!sharedPerf.getString("response","").equals("")){
+                            Intent intent = new Intent(MainActivity.this, History.class);
+                            startActivity(intent);
+                        }
                         break;
                     default:
                         return true;

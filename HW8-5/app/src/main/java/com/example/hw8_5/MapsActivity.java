@@ -64,14 +64,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         startActivity(intent);
                         break;
                     case R.id.results_menu_item:
-                        if(!sharedPerf.getString("response","").equals("")){
-                            intent = new Intent(MapsActivity.this, Results.class);
-                            startActivity(intent);
-                        }
+                        intent = new Intent(MapsActivity.this, Results.class);
+                        startActivity(intent);
+
                         break;
                     case R.id.map_menu_item:
                         break;
                     case R.id.five_day_menu_item:
+                        intent = new Intent(MapsActivity.this, History.class);
+                        startActivity(intent);
                         break;
                     default:
                         return true;

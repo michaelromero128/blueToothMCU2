@@ -59,6 +59,8 @@ public class Results extends AppCompatActivity {
                         startActivity(intent);
                         break;
                     case R.id.results_menu_item:
+                        intent = new Intent(Results.this, History.class);
+                        startActivity(intent);
                         break;
                     case R.id.map_menu_item:
                         intent = new Intent(Results.this, MapsActivity.class);
