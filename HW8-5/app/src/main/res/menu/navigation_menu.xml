@@ -2,16 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
-    <item android:id="@+id/account"
+    <item android:id="@+id/home_menu_item"
         android:icon="@drawable/ic_baseline_home_24"
         android:title="Home" />
-    <item android:id="@+id/settings"
+    <item android:id="@+id/results_menu_item"
         android:icon="@drawable/ic_baseline_cloud_24"
         android:title="Results" />
-    <item android:id="@+id/mycart"
+    <item android:id="@+id/map_menu_item"
         android:icon="@drawable/ic_baseline_map_24"
         android:title="Map" />
-    <item android:id="@+id/five_day"
+    <item android:id="@+id/five_day_menu_item"
         android:icon="@drawable/ic_baseline_looks_5_24"
         android:title="Five Day Forecast" />
 </menu>
