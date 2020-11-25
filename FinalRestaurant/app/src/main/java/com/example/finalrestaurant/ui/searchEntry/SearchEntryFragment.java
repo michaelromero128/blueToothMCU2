@@ -13,8 +13,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.finalrestaurant.MainActivityViewModel;
 import com.example.finalrestaurant.R;
+
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -86,7 +93,31 @@ public class SearchEntryFragment extends Fragment {
         });
         searchEditText =(EditText) view.findViewById(R.id.searchEditText);
         locationEditText = (EditText) view.findViewById(R.id.locationEditText);
-        
+        buttonSubmitSearch = (Button) view.findViewById(R.id.submitSearchButton);
+        errorTextView = (TextView) view.findViewById(R.id.errorTextView);
+        buttonSubmitSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                search();
+            }
+        });
         return view;
+    }
+
+    private void search(){
+        String searchText = searchEditText.getText().toString();
+        String locationText = locationEditText.getText().toString();
+        String urlPrefix = "https://api.yelp.com/v3/businessess/search";
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization")
+        if(locationText.equals("")){
+            String urlSuffix = "Starbucks";
+
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, urlPrefix+urlSuffix,)
+
+        }else{
+
+        }
+
     }
 }
