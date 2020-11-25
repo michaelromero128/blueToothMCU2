@@ -3,12 +3,17 @@ package com.example.finalrestaurant.ui.searchEntry;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
+import com.example.finalrestaurant.MainActivityViewModel;
 import com.example.finalrestaurant.R;
 
 /**
@@ -26,6 +31,12 @@ public class SearchEntryFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private EditText searchEditText;
+    private EditText locationEditText;
+    private Button submitSearchButton;
+    private TextView errorTextView;
+
+
 
     public SearchEntryFragment() {
         // Required empty public constructor
@@ -56,13 +67,26 @@ public class SearchEntryFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        Log.e("MyTag", "search fired");
+        MainActivityViewModel mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+        mainActivityViewModel.turnOn();
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search_entry, container, false);
+        View view = inflater.inflate(R.layout.fragment_search_entry, container, false);
+        Button buttonSubmitSearch = (Button) view.findViewById(R.id.submitSearchButton);
+        buttonSubmitSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Navigation.findNavController(view).navigate(SearchEntryFragmentDirections.actionSearchEntryToNavSearchResults());
+            }
+        });
+        searchEditText =(EditText) view.findViewById(R.id.searchEditText);
+        locationEditText = (EditText) view.findViewById(R.id.locationEditText);
+        
+        return view;
     }
 }

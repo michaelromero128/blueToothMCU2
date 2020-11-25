@@ -20,7 +20,6 @@ import com.example.finalrestaurant.R;
 public class LoginFragment extends Fragment {
 
     private LoginViewModel loginViewModel;
-    private MainActivityViewModel mainActivityViewModel;
     Button buttonRegister;
     Button buttonLogin;
 
@@ -32,9 +31,9 @@ public class LoginFragment extends Fragment {
         final TextView textView = root.findViewById(R.id.text_home);
 
 
-        mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
-        //mainActivityViewModel.turnOff();
-        mainActivityViewModel.turnOn();
+        MainActivityViewModel mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+        mainActivityViewModel.turnOff();
+
         buttonLogin = (Button) root.findViewById(R.id.buttonLogin);
         buttonRegister= (Button) root.findViewById(R.id.buttonRegister);
         buttonLogin.setOnClickListener(new View.OnClickListener() {

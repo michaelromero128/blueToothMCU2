@@ -11,10 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import com.example.finalrestaurant.MainActivityViewModel;
 import com.example.finalrestaurant.R;
 
 public class RegisterFragment extends Fragment {
@@ -40,6 +42,8 @@ public class RegisterFragment extends Fragment {
                 Navigation.findNavController(view).navigate(R.id.action_global_to_nav_login);
             }
         });
+        MainActivityViewModel mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+        mainActivityViewModel.turnOff();
         return root;
     }
 }
