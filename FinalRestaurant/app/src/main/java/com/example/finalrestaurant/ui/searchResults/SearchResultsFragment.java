@@ -3,14 +3,20 @@ package com.example.finalrestaurant.ui.searchResults;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.example.finalrestaurant.R;
+import com.example.finalrestaurant.models.YelpSearchResults;
+import com.example.finalrestaurant.ui.searchEntry.SearchEntryViewModel;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,6 +33,7 @@ public class SearchResultsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private TextView testTextView;
 
     public SearchResultsFragment() {
         // Required empty public constructor
@@ -69,6 +76,17 @@ public class SearchResultsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Navigation.findNavController(view).navigate(R.id.action_nav_search_results_to_nav_details);
+            }
+        });
+        testTextView = view.findViewById(R.id.testTextView);
+
+        SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
+        LiveData<YelpSearchResults> yelpSearchResults = searchEntryViewModel .getResults();
+        yelpSearchResults.observe(getActivity(), new Observer<YelpSearchResults>() {
+            @Override
+            public void onChanged(YelpSearchResults yelpSearchResults) {
+                testTextView.setText(yelpSearchResults.getRegion().getCenter().getLatitude().toString() +"   /   "+ yelpSearchResults.getRegion().getCenter().getLongitude().toString());
+
             }
         });
         return view;

@@ -17,4 +17,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/testTextView"
+        android:layout_width="195dp"
+        android:layout_height="92dp"
+        android:layout_marginBottom="88dp"
+        android:text="TextView"
+        app:layout_constraintBottom_toTopOf="@+id/wahoo"
+        app:layout_constraintStart_toStartOf="@+id/wahoo" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,13 +1,17 @@
 package com.example.finalrestaurant;
 
 import android.Manifest;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-import androidx.core.view.GravityCompat;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -19,19 +23,21 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.example.finalrestaurant.ui.home.HomeFragment;
-import com.example.finalrestaurant.ui.searchEntry.SearchEntryFragment;
+import com.example.finalrestaurant.ui.login.LoginViewModel;
+import com.example.finalrestaurant.ui.searchEntry.SearchEntryViewModel;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     private AppBarConfiguration mAppBarConfiguration;
     private MainActivityViewModel mainActivityViewModel;
-    private NavigationView navigationView;
-    private DrawerLayout mDrawer;
+    private SearchEntryViewModel searchEntryViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,30 +47,6 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        navigationView = (NavigationView) findViewById(R.id.nav_view);
-//        final NavigationView temp = navigationView;
-//        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-//            @Override
-//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//                Fragment fragment = null;
-//                Class fragmentClass;
-//                switch(item.getItemId()){
-//                    case R.id.nav_home:
-//                        Navigation.findNavController(temp).navigate(R.id.action_global_to_nav_home);
-//                        break;
-//                    case R.id.nav_search_entry:
-//                        Navigation.findNavController(temp).navigate(R.id.action_global_to_nav_search_entry);
-//                        break;
-//                    case R.id.nav_login:
-//                        Navigation.findNavController(temp).navigate(R.id.action_global_to_nav_login);
-//                }
-//            }
-//
-//        });
-//
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         // Passing each menu ID as a set of Ids because each
@@ -98,6 +80,67 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        navigationView.setNavigationItemSelectedListener(this);
+        LoginViewModel loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
+        loginViewModel.getName().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                TextView textView = (TextView) findViewById(R.id.textView_nav_Name);
+                if(textView == null){
+                    return;
+                }
+                textView.setText(s);
+
+
+            }
+        });
+        loginViewModel.getEmail().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+
+                TextView textView = (TextView) findViewById(R.id.textView_nav_email);
+                if(textView == null){
+                    return;
+                }
+                textView.setText(s);
+            }
+        });
+        loginViewModel.getPhotoUrl().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                ImageView imageView = findViewById(R.id.imageView);
+
+                if(s == null || imageView == null){
+                    return;
+                }else {
+                    final String params = s;
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                InputStream inputStream = new java.net.URL(params).openStream();
+                                final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ImageView imageView = findViewById(R.id.imageView);
+                                        imageView.setImageBitmap(bitmap);
+                                    }
+                                });
+                                Log.e("My tag", "Runnable finished");
+                            } catch (Exception e) {
+                                Log.e("My tag", "failure on runnable");
+                                Log.e("My tag", e.getMessage()+e.getLocalizedMessage());
+                            }
+
+                        }
+                    });
+                    thread.start();
+                }
+
+            }
+        });
+
 
     }
 
@@ -115,6 +158,42 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item){
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        LoginViewModel loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        switch(item.getItemId()){
+            case R.id.action_global_to_nav_login:
+                loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
+                FirebaseAuth.getInstance().signOut();
+
+                loginViewModel.setUser(null);
+                loginViewModel.setName(null);
+                loginViewModel.setEmail(null);
+                loginViewModel.setPhotoUrl(null);
+                navController.navigate(R.id.action_global_to_nav_login);
+                break;
+            case R.id.action_global_to_nav_home:
+                navController.navigate(R.id.action_global_to_nav_home);
+                break;
+            case R.id.action_global_to_nav_search_entry:
+                navController.navigate(R.id.action_global_to_nav_search_entry);
+                break;
+            default:
+                loginViewModel.setUser(null);
+                loginViewModel.setName(null);
+                loginViewModel.setEmail(null);
+                navController.navigate(R.id.action_global_to_nav_login);
+                break;
+        }
+        drawer.closeDrawers();
+        return true;
+
+    }
+
+
 
 
 

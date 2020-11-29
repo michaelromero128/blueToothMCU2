@@ -4,8 +4,10 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +15,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.finalrestaurant.MainActivityViewModel;
 import com.example.finalrestaurant.R;
+import com.example.finalrestaurant.models.GPSTracker;
+import com.example.finalrestaurant.models.YelpSearchResults;
+import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
@@ -95,6 +105,7 @@ public class SearchEntryFragment extends Fragment {
         locationEditText = (EditText) view.findViewById(R.id.locationEditText);
         buttonSubmitSearch = (Button) view.findViewById(R.id.submitSearchButton);
         errorTextView = (TextView) view.findViewById(R.id.errorTextView);
+        errorTextView.setVisibility(View.INVISIBLE);
         buttonSubmitSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -103,21 +114,112 @@ public class SearchEntryFragment extends Fragment {
         });
         return view;
     }
-
     private void search(){
+        Log.e("My tag", "Thing");
+        errorTextView.setVisibility(View.INVISIBLE);
         String searchText = searchEditText.getText().toString();
         String locationText = locationEditText.getText().toString();
-        String urlPrefix = "https://api.yelp.com/v3/businessess/search";
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization")
+        String urlPrefix = "https://api.yelp.com/v3/businesses/search";
         if(locationText.equals("")){
-            String urlSuffix = "Starbucks";
+            GPSTracker gps = new GPSTracker(this.getContext());
+            Double longitude = null;
+            Double latitude = null;
+            if(gps.canGetLocation()){
+                longitude =  1.0*(((int) gps.getLongitude()*10000)/10000);
+                latitude = 1.0*(((int) gps.getLatitude()*10000)/10000);
+            }
+            if(latitude != null){
+                String urlSuffix = String.format("?term=%s&longitude=%s&latitude=%s","Star Bucks".replaceAll(" ", "%20"),longitude,latitude);
+                RequestQueue queue = Volley.newRequestQueue(this.getActivity());
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, urlPrefix + urlSuffix, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        handleInput(response);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("My tag", "bah");
 
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, urlPrefix+urlSuffix,)
+                        try{
+                            Log.e("MyTag", new String(error.networkResponse.data,"UTF-8"));
+                        }catch(Exception e){
+                            Log.e("MyTag", "wah");
+                        }
+                        errorTextView.setText("Something bad happened");
+                        errorTextView.setVisibility(View.VISIBLE);
+                    }
+                }){
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> params =new HashMap<>(super.getHeaders());
+                        params.put("Authorization", "Bearer "+getString(R.string.yelp_api_key));
+                        return params;
+                    };
+                };
+                queue.add(request);
 
+            }else{
+                errorTextView.setText("GPS not working, enter location by hand");
+                errorTextView.setVisibility(View.VISIBLE);
+            }
         }else{
+            String urlSuffix = String.format("?term=%s&location=%s","StarBucks", "Miami");
+            RequestQueue queue = Volley.newRequestQueue(this.getActivity());
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, urlPrefix+urlSuffix,null, new Response.Listener<JSONObject>(){
+                @Override
+                public void onResponse(JSONObject response){
+                    Log.e("My tag", "wuh");
 
+                    handleInput(response);
+                }
+            }, new Response.ErrorListener(){
+                @Override
+                public void onErrorResponse(VolleyError error){
+                    Log.e("My tag", "Thing");
+                    Log.e("My tag", "Thing");
+
+                    errorTextView.setText("An error occured");
+                    errorTextView.setVisibility(View.VISIBLE);
+
+                    Log.e("My tag", "bah");
+
+                    try{
+                        Log.e("MyTag", new String(error.networkResponse.data,"UTF-8"));
+                    }catch(Exception e){
+                        Log.e("MyTag", "wah");
+                    };
+                }
+            }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params =new HashMap<>(super.getHeaders());
+                    params.put("Authorization", "Bearer "+getString(R.string.yelp_api_key));
+                    return params;
+                }
+            };
+            queue.add(request);
         }
+    }
+    private void handleInput(JSONObject response){
+        Gson gson = new Gson();
+        YelpSearchResults yelpSearchResults = null;
+        SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
+        yelpSearchResults = gson.fromJson(response.toString(),YelpSearchResults.class);
+        searchEntryViewModel.setResults(yelpSearchResults);
+        Log.e("My tag",yelpSearchResults.getBusinesses().get(0).getDisplay_phone());
+        try{
+            Log.e("My Tag", searchEntryViewModel.getResults().getValue().getBusinesses().get(0).getDisplay_phone());
+        }catch(Exception e){
+            Log.e("My tag,", "It died");
+        }
+        NavDirections action = SearchEntryFragmentDirections.actionSearchEntryToNavSearchResults();
+        View view = getView();
+        if(view != null && yelpSearchResults != null){
+            Navigation.findNavController(view).navigate(action);
+        }
+
+
 
     }
 }

@@ -4,16 +4,23 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.finalrestaurant.models.Restaurant;
+
+import java.util.ArrayList;
+
 public class HomeViewModel extends ViewModel {
 
-    private MutableLiveData<String> mText;
+    private MutableLiveData<ArrayList<Restaurant>> restaurants;
 
     public HomeViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is slideshow fragment");
+        restaurants = new MutableLiveData<>();
+        restaurants.setValue(new ArrayList<Restaurant>());
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public LiveData<ArrayList<Restaurant>> getRestaurants() {
+        return restaurants;
+    }
+    public void setRestaurants(ArrayList<Restaurant> restaurants){
+        this.restaurants.setValue(restaurants);
     }
 }
