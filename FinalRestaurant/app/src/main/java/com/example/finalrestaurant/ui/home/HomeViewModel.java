@@ -14,7 +14,7 @@ public class HomeViewModel extends ViewModel {
 
     public HomeViewModel() {
         restaurants = new MutableLiveData<>();
-        restaurants.setValue(new ArrayList<Restaurant>());
+        restaurants.setValue(null);
     }
 
     public LiveData<ArrayList<Restaurant>> getRestaurants() {

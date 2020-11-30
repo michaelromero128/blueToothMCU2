@@ -146,6 +146,10 @@ public class Restaurant {
         this.location = location;
     }
 
+    public String toString(){
+        return name;
+    }
+
     public class Category{
         String alias;
         String title;

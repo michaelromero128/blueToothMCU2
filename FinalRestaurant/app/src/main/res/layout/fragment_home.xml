@@ -6,24 +6,22 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
-    <Button
-        android:id="@+id/wahoo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="148dp"
-        android:layout_marginLeft="148dp"
-        android:layout_marginTop="348dp"
-        android:text="wahoo"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewFavorites"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/testTextView"
-        android:layout_width="195dp"
-        android:layout_height="92dp"
-        android:layout_marginBottom="88dp"
-        android:text="TextView"
-        app:layout_constraintBottom_toTopOf="@+id/wahoo"
-        app:layout_constraintStart_toStartOf="@+id/wahoo" />
+        android:id="@+id/favoritesLoadingTextView"
+        android:layout_width="87dp"
+        android:layout_height="95dp"
+        android:layout_marginStart="148dp"
+        android:layout_marginLeft="148dp"
+        android:layout_marginTop="156dp"
+        android:text="Loading..."
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

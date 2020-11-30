@@ -9,7 +9,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -20,6 +23,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.finalrestaurant.MainActivityViewModel;
 import com.example.finalrestaurant.R;
+import com.example.finalrestaurant.models.FavoritesAdapter;
 import com.example.finalrestaurant.models.Restaurant;
 import com.example.finalrestaurant.ui.login.LoginViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -27,7 +31,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
@@ -36,6 +39,8 @@ import com.google.gson.Gson;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -44,24 +49,39 @@ import java.util.Set;
 public class HomeFragment extends Fragment {
 
     private HomeViewModel homeViewModel;
-    private TextView test;
+    private TextView favoritesLoadingTextView;
+    private RecyclerView recyclerViewFavorites;
+
 
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
-        //homeViewModel.getRestaurants().observer
-
+        // inflate view
         View root = inflater.inflate(R.layout.fragment_home, container, false);
-        test = (TextView) root.findViewById(R.id.testTextView);
+
+        // homeViewModel listener
+        homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
+        homeViewModel.getRestaurants().observe(getActivity(), new Observer<ArrayList<Restaurant>>() {
+            @Override
+            public void onChanged(ArrayList<Restaurant> restaurants) {
+                if(restaurants != null) {
+                    Log.e("My tag", "view model update detected");
+                    Log.e("My tag", restaurants.toString());
+                    updateUI();
+                }
+            }
+        });
+        // turn on nav bar
         MainActivityViewModel mainActivityViewModel = new ViewModelProvider(requireActivity()).get(MainActivityViewModel.class);
         mainActivityViewModel.turnOn();
+        //gets user id
         LoginViewModel loginViewModel = new ViewModelProvider(requireActivity()).get(LoginViewModel.class);
         FirebaseUser user = loginViewModel.getUser().getValue();
         final String id = user.getUid();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         Log.e("My tag", "before db get");
+        // fetches favorites from firestore
         db.collection("users").document(id).get(Source.SERVER).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
             @Override
             public void onComplete(Task<DocumentSnapshot> task) {
@@ -111,10 +131,11 @@ public class HomeFragment extends Fragment {
             }
         });
         Log.e("My tag", "after db get");
-
         return root;
     }
     public void setRestaurants(final ArrayList<String> keys){
+        // once given a set of keys from fire store, retrieves a list of restaurants from yelp.
+        //only updates the viewmodel if all restaurants are collected
         if(keys.size() == 0){
             setEmptyList();
             return;
@@ -123,7 +144,6 @@ public class HomeFragment extends Fragment {
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         for(int i = 0; i < keys.size(); i++){
             String url = "https://api.yelp.com/v3/businesses/" + keys.get(i);
-
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
@@ -131,6 +151,12 @@ public class HomeFragment extends Fragment {
                     Restaurant restaurant = gson.fromJson(response.toString(), Restaurant.class);
                     restaurants.add(restaurant);
                     if( restaurants.size()== keys.size()){
+                        Collections.sort(restaurants, new Comparator<Restaurant>() {
+                            @Override
+                            public int compare(Restaurant restaurant, Restaurant t1) {
+                                return restaurant.getName().compareTo(t1.getName());
+                            }
+                        });
                         HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
                         homeViewModel.setRestaurants(restaurants);
                     }
@@ -153,22 +179,40 @@ public class HomeFragment extends Fragment {
             queue.add(request);
 
         }
+        Log.e("My tag","set restaurants method complete");
 
     }
     public void setEmptyList(){
 
     }
     public void updateUI(){
+        if(recyclerViewFavorites == null){
+
+            return;
+        }
         HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
         ArrayList<Restaurant> restaurants = homeViewModel.getRestaurants().getValue();
-        Iterator<Restaurant> iterator = restaurants.iterator();
-        String input = "";
-        while(iterator.hasNext()){
-            input += iterator.next().getName() + " / ";
-        }
-        test.setText(input);
+        recyclerViewFavorites.setAdapter(new FavoritesAdapter(restaurants));
+        favoritesLoadingTextView.setVisibility(View.GONE);
+        recyclerViewFavorites.setVisibility(View.VISIBLE);
+
 
     }
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState){
+        //sets up recycler view after view has been created
+        super.onViewCreated(view, savedInstanceState);
+        recyclerViewFavorites = (RecyclerView) view.findViewById(R.id.recyclerViewFavorites);
+        //setup recycler view
+        recyclerViewFavorites.setHasFixedSize(false);
+        recyclerViewFavorites.setLayoutManager(new LinearLayoutManager(getActivity()));
+        //hide recyclerview and show loading textview
+        recyclerViewFavorites.setVisibility(View.GONE);
+        favoritesLoadingTextView = (TextView) view.findViewById(R.id.favoritesLoadingTextView);
+        favoritesLoadingTextView.setVisibility(View.VISIBLE);
+
+    }
+
 
 
 }
