@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.finalrestaurant.R;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.ViewHolderFavorites>{
     private ArrayList<Restaurant> restaurants;
@@ -40,6 +39,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
         private TextView textView;
         public ViewHolderFavorites(View view){
             super(view);
+            Log.e("My_tag", "view holder favorites constructor fired");
             textView =(TextView) view.findViewById(R.id.temporaryRecycleritem);
         }
         public TextView getTextView(){

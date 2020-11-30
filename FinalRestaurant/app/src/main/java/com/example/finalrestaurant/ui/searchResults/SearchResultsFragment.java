@@ -7,7 +7,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +18,12 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.finalrestaurant.R;
+import com.example.finalrestaurant.models.Restaurant;
+import com.example.finalrestaurant.models.SearchResultsAdapter;
 import com.example.finalrestaurant.models.YelpSearchResults;
 import com.example.finalrestaurant.ui.searchEntry.SearchEntryViewModel;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,7 +40,7 @@ public class SearchResultsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private TextView testTextView;
+    private RecyclerView recyclerViewSearchResults;
 
     public SearchResultsFragment() {
         // Required empty public constructor
@@ -71,24 +78,36 @@ public class SearchResultsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_search_results, container, false);
-        Button searchResults = (Button) view.findViewById(R.id.searchResults);
-        searchResults.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Navigation.findNavController(view).navigate(R.id.action_nav_search_results_to_nav_details);
-            }
-        });
-        testTextView = view.findViewById(R.id.testTextView);
-
-        SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
-        LiveData<YelpSearchResults> yelpSearchResults = searchEntryViewModel .getResults();
-        yelpSearchResults.observe(getActivity(), new Observer<YelpSearchResults>() {
-            @Override
-            public void onChanged(YelpSearchResults yelpSearchResults) {
-                testTextView.setText(yelpSearchResults.getRegion().getCenter().getLatitude().toString() +"   /   "+ yelpSearchResults.getRegion().getCenter().getLongitude().toString());
-
-            }
-        });
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstance){
+        super.onViewCreated(view, savedInstance);
+        //sets up recycler view
+        recyclerViewSearchResults = (RecyclerView) view.findViewById(R.id.recyclerViewSearchResults);
+        recyclerViewSearchResults.setHasFixedSize(false);
+        recyclerViewSearchResults.setLayoutManager(new LinearLayoutManager(getActivity()));
+        SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
+        //add listener to viewModel
+        LiveData<ArrayList<Restaurant>> restaurants = searchEntryViewModel .getRestaurants();
+        restaurants.observe(getActivity(), new Observer<ArrayList<Restaurant>>() {
+            @Override
+            public void onChanged(ArrayList<Restaurant> yelpSearchResults) {
+                updateUI();
+            }
+        });
+    }
+    private void updateUI(){
+        Log.e("My tag", "updateUi called");
+        if(recyclerViewSearchResults == null){
+            return;
+        }
+        Log.e("My tag","recyclerview not null");
+        SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
+        ArrayList<Restaurant> restaurants = searchEntryViewModel.getRestaurants().getValue();
+        Log.e("My tag", restaurants.toString());
+        recyclerViewSearchResults.setAdapter(new SearchResultsAdapter(restaurants));
+
     }
 }

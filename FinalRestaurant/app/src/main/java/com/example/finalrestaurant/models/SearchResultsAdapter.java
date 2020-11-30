@@ -4,12 +4,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.finalrestaurant.R;
+import com.example.finalrestaurant.ui.searchResults.SearchResultsFragmentDirections;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,28 +33,50 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolderSearchResults viewHolderSearchResults, int position) {
-        viewHolderSearchResults.getTextView().setText(restaurants.get(position).getName());
-
+        viewHolderSearchResults.getNameTextView().setText(restaurants.get(position).getName());
+        viewHolderSearchResults.getAddressTextView().setText(restaurants.get(position).getLocation().getDisplay_address().get(0));
+        viewHolderSearchResults.getNumberTextView().setText(restaurants.get(position).getDisplay_phone());
+        viewHolderSearchResults.getToDetailsButton().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                NavDirections action = SearchResultsFragmentDirections.actionNavSearchResultsToNavDetails();
+                Navigation.findNavController(view).navigate(action);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return restaurants.size();
     }
 
     public class ViewHolderSearchResults extends RecyclerView.ViewHolder{
-        private TextView textView;
+        private TextView nameTextView;
+        private TextView numberTextView;
+        private TextView addressTextView;
+        private Button toDetailsButton;
         public ViewHolderSearchResults(View view){
             super(view);
             Log.e("My tag",view.toString());
             //
-
-            textView =(TextView) view.findViewById(R.id.temporarySearchResultsItem);
-            Log.e("My tag, text view",textView.toString());
+            Log.e("My_tag", "view holder search results constructor fired");
+            nameTextView =(TextView) view.findViewById(R.id.temporaryTextViewName);
+            numberTextView = (TextView) view.findViewById(R.id.temporaryTextViewPhoneNumber);
+            addressTextView = (TextView) view.findViewById(R.id.temporaryTextViewAddress);
+            toDetailsButton = (Button) view.findViewById(R.id.temporaryToDetailsButton);
         }
 
-        public TextView getTextView(){
-            return textView;
+        public TextView getNameTextView(){
+            return nameTextView;
+        }
+        public TextView getNumberTextView(){
+            return numberTextView;
+        }
+        public TextView getAddressTextView(){
+            return addressTextView;
+        }
+        public Button getToDetailsButton(){
+            return toDetailsButton;
         }
 
     }

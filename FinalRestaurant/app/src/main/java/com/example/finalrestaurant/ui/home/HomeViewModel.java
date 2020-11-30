@@ -11,10 +11,13 @@ import java.util.ArrayList;
 public class HomeViewModel extends ViewModel {
 
     private MutableLiveData<ArrayList<Restaurant>> restaurants;
+    private MutableLiveData<ArrayList<String>> favoritesList;
 
     public HomeViewModel() {
         restaurants = new MutableLiveData<>();
         restaurants.setValue(null);
+        favoritesList = new MutableLiveData<>();
+        favoritesList.setValue(null);
     }
 
     public LiveData<ArrayList<Restaurant>> getRestaurants() {
@@ -22,5 +25,9 @@ public class HomeViewModel extends ViewModel {
     }
     public void setRestaurants(ArrayList<Restaurant> restaurants){
         this.restaurants.setValue(restaurants);
+    }
+    public LiveData<ArrayList<String>> getFavoritesList(){return favoritesList;}
+    public void setFavoritesList(ArrayList<String> favoritesList){
+        this.favoritesList.setValue(favoritesList);
     }
 }

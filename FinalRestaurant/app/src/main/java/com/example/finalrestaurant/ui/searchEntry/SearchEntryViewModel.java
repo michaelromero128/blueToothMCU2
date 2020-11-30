@@ -4,22 +4,25 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.finalrestaurant.models.Restaurant;
 import com.example.finalrestaurant.models.YelpSearchResults;
 
+import java.util.ArrayList;
+
 public class SearchEntryViewModel extends ViewModel {
-    private MutableLiveData<YelpSearchResults> results;
+    private MutableLiveData<ArrayList<Restaurant>> restaurants;
 
 
     public SearchEntryViewModel(){
-        results = new MutableLiveData<YelpSearchResults>();
+        restaurants = new MutableLiveData<ArrayList<Restaurant>>();
     }
-    public LiveData<YelpSearchResults> getResults(){
-        return results;
+    public LiveData<ArrayList<Restaurant>> getRestaurants(){
+        return restaurants;
     }
 
-    public void setResults(YelpSearchResults results){
+    public void setRestaurants(ArrayList<Restaurant> results){
 
-        this.results.postValue(results);
+        this.restaurants.postValue(results);
     }
 
 }

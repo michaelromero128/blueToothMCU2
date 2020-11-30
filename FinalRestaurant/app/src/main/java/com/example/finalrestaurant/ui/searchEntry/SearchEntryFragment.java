@@ -95,12 +95,7 @@ public class SearchEntryFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_search_entry, container, false);
         Button buttonSubmitSearch = (Button) view.findViewById(R.id.submitSearchButton);
-        buttonSubmitSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Navigation.findNavController(view).navigate(SearchEntryFragmentDirections.actionSearchEntryToNavSearchResults());
-            }
-        });
+
         searchEditText =(EditText) view.findViewById(R.id.searchEditText);
         locationEditText = (EditText) view.findViewById(R.id.locationEditText);
         buttonSubmitSearch = (Button) view.findViewById(R.id.submitSearchButton);
@@ -206,13 +201,7 @@ public class SearchEntryFragment extends Fragment {
         YelpSearchResults yelpSearchResults = null;
         SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
         yelpSearchResults = gson.fromJson(response.toString(),YelpSearchResults.class);
-        searchEntryViewModel.setResults(yelpSearchResults);
-        Log.e("My tag",yelpSearchResults.getBusinesses().get(0).getDisplay_phone());
-        try{
-            Log.e("My Tag", searchEntryViewModel.getResults().getValue().getBusinesses().get(0).getDisplay_phone());
-        }catch(Exception e){
-            Log.e("My tag,", "It died");
-        }
+        searchEntryViewModel.setRestaurants(yelpSearchResults.getBusinesses());
         NavDirections action = SearchEntryFragmentDirections.actionSearchEntryToNavSearchResults();
         View view = getView();
         if(view != null && yelpSearchResults != null){

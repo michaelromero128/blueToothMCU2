@@ -10,6 +10,7 @@ public class YelpSearchResults {
     private ArrayList<Restaurant> businesses;
     private Region region;
 
+
     public ArrayList<Restaurant> getBusinesses() {
         return businesses;
 

@@ -59,7 +59,6 @@ public class HomeFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         // inflate view
         View root = inflater.inflate(R.layout.fragment_home, container, false);
-
         // homeViewModel listener
         homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
         homeViewModel.getRestaurants().observe(getActivity(), new Observer<ArrayList<Restaurant>>() {
@@ -124,10 +123,7 @@ public class HomeFragment extends Fragment {
 
                     }
                 }else{
-
-
                 }
-
             }
         });
         Log.e("My tag", "after db get");
@@ -141,6 +137,8 @@ public class HomeFragment extends Fragment {
             return;
         }
         final ArrayList<Restaurant> restaurants = new ArrayList<>();
+        final HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
+        homeViewModel.setFavoritesList(keys);
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         for(int i = 0; i < keys.size(); i++){
             String url = "https://api.yelp.com/v3/businesses/" + keys.get(i);
@@ -157,7 +155,7 @@ public class HomeFragment extends Fragment {
                                 return restaurant.getName().compareTo(t1.getName());
                             }
                         });
-                        HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
+
                         homeViewModel.setRestaurants(restaurants);
                     }
 
