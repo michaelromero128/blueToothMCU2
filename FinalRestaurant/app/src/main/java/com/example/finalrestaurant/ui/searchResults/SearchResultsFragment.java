@@ -21,6 +21,7 @@ import com.example.finalrestaurant.R;
 import com.example.finalrestaurant.models.Restaurant;
 import com.example.finalrestaurant.models.SearchResultsAdapter;
 import com.example.finalrestaurant.models.YelpSearchResults;
+import com.example.finalrestaurant.ui.details.DetailsViewModel;
 import com.example.finalrestaurant.ui.searchEntry.SearchEntryViewModel;
 
 import java.util.ArrayList;
@@ -82,8 +83,9 @@ public class SearchResultsFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstance){
+    public void onViewCreated( View view, Bundle savedInstance){
         super.onViewCreated(view, savedInstance);
+
         //sets up recycler view
         recyclerViewSearchResults = (RecyclerView) view.findViewById(R.id.recyclerViewSearchResults);
         recyclerViewSearchResults.setHasFixedSize(false);
@@ -97,6 +99,7 @@ public class SearchResultsFragment extends Fragment {
                 updateUI();
             }
         });
+
     }
     private void updateUI(){
         Log.e("My tag", "updateUi called");
@@ -105,9 +108,16 @@ public class SearchResultsFragment extends Fragment {
         }
         Log.e("My tag","recyclerview not null");
         SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
-        ArrayList<Restaurant> restaurants = searchEntryViewModel.getRestaurants().getValue();
+        final ArrayList<Restaurant> restaurants = searchEntryViewModel.getRestaurants().getValue();
         Log.e("My tag", restaurants.toString());
-        recyclerViewSearchResults.setAdapter(new SearchResultsAdapter(restaurants));
+        final DetailsViewModel detailsViewModel = new ViewModelProvider(getActivity()).get(DetailsViewModel.class);
+        SearchResultsAdapter.SearchResultsAdapterViewModelInterface searchResultsAdapterViewModelInterface = new SearchResultsAdapter.SearchResultsAdapterViewModelInterface() {
+            @Override
+            public void onClick(int itemID) {
+                detailsViewModel.setRestaurant(restaurants.get(itemID));
+            }
+        };
+        recyclerViewSearchResults.setAdapter(new SearchResultsAdapter(restaurants, searchResultsAdapterViewModelInterface));
 
     }
 }

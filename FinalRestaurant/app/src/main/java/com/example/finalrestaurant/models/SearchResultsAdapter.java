@@ -24,11 +24,11 @@ import java.util.Iterator;
 public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdapter.ViewHolderSearchResults>{
 
     private ArrayList<Restaurant> restaurants;
-    private Context context;
+    private SearchResultsAdapterViewModelInterface searchResultsAdapterViewModelInterface;
 
-    public SearchResultsAdapter(ArrayList<Restaurant> restaurants, Context context){
+    public SearchResultsAdapter(ArrayList<Restaurant> restaurants, SearchResultsAdapterViewModelInterface searchResultsAdapterViewModelInterface){
         this.restaurants = restaurants;
-        this.context = context;
+        this.searchResultsAdapterViewModelInterface = searchResultsAdapterViewModelInterface;
     }
     @NonNull
     @Override
@@ -39,14 +39,14 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolderSearchResults viewHolderSearchResults, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolderSearchResults viewHolderSearchResults, final int position) {
         viewHolderSearchResults.getNameTextView().setText(restaurants.get(position).getName());
         viewHolderSearchResults.getAddressTextView().setText(restaurants.get(position).getLocation().getDisplay_address().get(0));
         viewHolderSearchResults.getNumberTextView().setText(restaurants.get(position).getDisplay_phone());
         viewHolderSearchResults.getToDetailsButton().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DetailsViewModel detailsViewModel = new ViewModelProvider(viewHolderSearchResults.getView().getContext()).get(DetailsViewModel.class);
+                searchResultsAdapterViewModelInterface.onClick(position);
                 NavDirections action = SearchResultsFragmentDirections.actionNavSearchResultsToNavDetails();
                 Navigation.findNavController(view).navigate(action);
             }
@@ -89,5 +89,8 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
         }
         public View getView(){return view;}
 
+    }
+    public interface SearchResultsAdapterViewModelInterface {
+        void onClick(int itemID);
     }
 }
