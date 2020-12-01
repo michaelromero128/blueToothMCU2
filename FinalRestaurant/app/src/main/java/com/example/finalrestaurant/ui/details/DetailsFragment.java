@@ -1,14 +1,34 @@
 package com.example.finalrestaurant.ui.details;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.gridlayout.widget.GridLayout;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.finalrestaurant.R;
+import com.example.finalrestaurant.models.Restaurant;
+import com.example.finalrestaurant.ui.home.HomeViewModel;
+import com.example.finalrestaurant.ui.login.LoginViewModel;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -63,4 +83,93 @@ public class DetailsFragment extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_details, container, false);
     }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
+        //setting simple text views
+        DetailsViewModel detailsViewModel = new ViewModelProvider(getActivity()).get(DetailsViewModel.class);
+        Restaurant restaurant = detailsViewModel.getRestaurant().getValue();
+        GridLayout gridLayout = (GridLayout) view.findViewById(R.id.detailsFragmentGridLayout);
+
+        ((TextView) gridLayout.findViewById(R.id.textViewDetailsName)).setText(restaurant.getName());
+        ((TextView) gridLayout.findViewById(R.id.textViewDetailsIs_Closed)).setText(restaurant.getIs_closed() ? "Closed": "Open");
+        ((TextView) gridLayout.findViewById(R.id.textViewsDetailsAddress)).setText(restaurant.getLocation().getDisplay_address().get(0));
+        ((TextView) gridLayout.findViewById(R.id.textViewDetailsRatings)).setText(restaurant.getRating().toString());
+        StringBuilder categoriesStringBuilder = new StringBuilder();
+        Iterator iterator = restaurant.getCategories().iterator();
+        while(iterator.hasNext()) {
+            categoriesStringBuilder.append(iterator.next() + ", ");
+        }
+        String categoriesString = categoriesStringBuilder.subSequence(0,categoriesStringBuilder.length()).toString();
+        ((TextView) gridLayout.findViewById(R.id.textViewDetailCategories)).setText(categoriesString);
+        ((TextView) gridLayout.findViewById(R.id.textViewDetailsName)).setText(restaurant.getDisplay_phone());
+        ((TextView) gridLayout.findViewById(R.id.textViewDetailsName)).setText("Price: "+restaurant.getPrice());
+        //setting image view
+        final String params = restaurant.getImage_url();
+        final ImageView imageView= (ImageView) view.findViewById(R.id.detailsImageView);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    InputStream inputStream = new java.net.URL(params).openStream();
+                    final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                    imageView.setImageBitmap(bitmap);
+                    Log.e("My tag", "Runnable finished");
+                } catch (Exception e) {
+                    Log.e("My tag", "failure on runnable");
+                    Log.e("My tag", e.getMessage()+e.getLocalizedMessage());
+                }
+
+            }
+        });
+        // set up toggle button
+        HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
+        setFavoriteToggleButtonImage(gridLayout, restaurant.getId(), homeViewModel);
+    }
+    public void setFavoriteToggleButtonImage(View view, final String restaurantID, final HomeViewModel homeViewModel) {
+        // set image for add favorite toggle
+        final LiveData<ArrayList<String>> liveDataFavorites = homeViewModel.getFavoritesList();
+        ArrayList<String> favorites = liveDataFavorites.getValue();
+        final Button button = (Button) view.findViewById(R.id.detailsButtonToggleFavorite);
+        LoginViewModel loginViewModel = new ViewModelProvider(getActivity()).get(LoginViewModel.class);
+        final String userID = loginViewModel.getUser().getValue().getUid();
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        //sets the image
+        if (favorites.contains(restaurantID)) {
+            button.setBackgroundResource(R.drawable.ic_iconmonstr_favorite_toggle_off);
+        } else {
+            button.setBackgroundResource(R.drawable.ic_iconmonstr_favorite_toggle_on);
+        }
+        // listener for the image
+        liveDataFavorites.observe(getActivity(), new Observer<ArrayList<String>>() {
+            @Override
+            public void onChanged(ArrayList<String> favorites) {
+                if (favorites.contains(restaurantID)) {
+                    button.setBackgroundResource(R.drawable.ic_iconmonstr_favorite_toggle_off);
+                } else {
+                    button.setBackgroundResource(R.drawable.ic_iconmonstr_favorite_toggle_on);
+                }
+            }
+        });
+        // listener for click to toggle favorites and update db
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ArrayList<String> favorites = liveDataFavorites.getValue();
+                if (favorites.contains(restaurantID)) {
+                    favorites.remove(restaurantID);
+                    favorites = new ArrayList(favorites);
+                    homeViewModel.setFavoritesList(favorites);
+                } else {
+                    favorites.add(restaurantID);
+                    favorites = new ArrayList(favorites);
+                    homeViewModel.setFavoritesList(favorites);
+                }
+                db.collection("users").document(userID).set(favorites);
+            }
+        });
+    }
+
+
 }
