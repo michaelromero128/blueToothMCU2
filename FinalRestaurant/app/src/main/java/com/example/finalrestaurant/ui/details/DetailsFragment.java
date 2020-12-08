@@ -23,10 +23,11 @@ import com.example.finalrestaurant.R;
 import com.example.finalrestaurant.models.Restaurant;
 import com.example.finalrestaurant.ui.home.HomeViewModel;
 import com.example.finalrestaurant.ui.login.LoginViewModel;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -87,24 +88,31 @@ public class DetailsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
-        //setting simple text views
+        //setting simple text views, some parsing
         DetailsViewModel detailsViewModel = new ViewModelProvider(getActivity()).get(DetailsViewModel.class);
         Restaurant restaurant = detailsViewModel.getRestaurant().getValue();
         GridLayout gridLayout = (GridLayout) view.findViewById(R.id.detailsFragmentGridLayout);
-
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsName)).setText(restaurant.getName());
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsIs_Closed)).setText(restaurant.getIs_closed() ? "Closed": "Open");
-        ((TextView) gridLayout.findViewById(R.id.textViewsDetailsAddress)).setText(restaurant.getLocation().getDisplay_address().get(0));
+
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsRatings)).setText(restaurant.getRating().toString());
         StringBuilder categoriesStringBuilder = new StringBuilder();
         Iterator iterator = restaurant.getCategories().iterator();
         while(iterator.hasNext()) {
-            categoriesStringBuilder.append(iterator.next() + ", ");
+            categoriesStringBuilder.append(((Restaurant.Category) iterator.next()).getTitle() + ", ");
         }
-        String categoriesString = categoriesStringBuilder.subSequence(0,categoriesStringBuilder.length()).toString();
-        ((TextView) gridLayout.findViewById(R.id.textViewDetailCategories)).setText(categoriesString);
-        ((TextView) gridLayout.findViewById(R.id.textViewDetailsName)).setText(restaurant.getDisplay_phone());
-        ((TextView) gridLayout.findViewById(R.id.textViewDetailsName)).setText("Price: "+restaurant.getPrice());
+
+        ((TextView) gridLayout.findViewById(R.id.textViewDetailCategories)).setText(categoriesStringBuilder.subSequence(0,categoriesStringBuilder.length()).toString());
+
+        StringBuilder locationStringBuilder = new StringBuilder();
+        iterator = restaurant.getLocation().getDisplay_address().iterator();
+        while(iterator.hasNext()) {
+            locationStringBuilder.append(iterator.next() + ", ");
+        }
+        ((TextView) gridLayout.findViewById(R.id.textViewsDetailsAddress)).setText(locationStringBuilder.subSequence(0,locationStringBuilder.length()).toString());
+        ((TextView) gridLayout.findViewById(R.id.textViewDetailsName)).setText(restaurant.getName());
+        ((TextView) gridLayout.findViewById(R.id.textViewDetailsPrice)).setText("Price: "+restaurant.getPrice());
+        ((TextView) gridLayout.findViewById(R.id.textViewDetailsPhoneNumber)).setText(restaurant.getDisplay_phone());
         //setting image view
         final String params = restaurant.getImage_url();
         final ImageView imageView= (ImageView) view.findViewById(R.id.detailsImageView);
@@ -112,17 +120,33 @@ public class DetailsFragment extends Fragment {
             @Override
             public void run() {
                 try {
-                    InputStream inputStream = new java.net.URL(params).openStream();
+                    Log.e("My tag", params);
+                    URL url = new URL(params);
+                    InputStream inputstream = url.openStream();
+                    Log.e("My tag", "got inputStream");
+                    BufferedInputStream inputStream = new BufferedInputStream(inputstream);
                     final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                    imageView.setImageBitmap(bitmap);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imageView.setImageBitmap(bitmap);
+                        }
+                    });
+                    Log.e("My tag", "got bitmap");
+                    if(inputStream != null){
+                        inputStream.close();
+                    }
                     Log.e("My tag", "Runnable finished");
-                } catch (Exception e) {
-                    Log.e("My tag", "failure on runnable");
-                    Log.e("My tag", e.getMessage()+e.getLocalizedMessage());
+                } catch (Exception exce) {
+                        Log.e("My tag", "failure on runnable");
+                        Log.e("My tag", exce.getMessage());
+                        Log.e("My tag", "end failure message");
+
                 }
 
             }
         });
+        thread.start();
         // set up toggle button
         HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
         setFavoriteToggleButtonImage(gridLayout, restaurant.getId(), homeViewModel);
@@ -166,7 +190,8 @@ public class DetailsFragment extends Fragment {
                     favorites = new ArrayList(favorites);
                     homeViewModel.setFavoritesList(favorites);
                 }
-                db.collection("users").document(userID).set(favorites);
+
+                db.collection("users").document(userID).update("favorites", favorites);
             }
         });
     }

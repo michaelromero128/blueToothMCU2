@@ -10,8 +10,10 @@
 
     <androidx.gridlayout.widget.GridLayout
         android:id="@+id/detailsFragmentGridLayout"
-        android:layout_width="match_parent"
-        android:layout_height="481dp"
+        android:layout_width="359dp"
+        android:layout_height="424dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginLeft="24dp"
         app:columnCount="6"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/detailsImageView"
@@ -23,40 +25,41 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_column="5"
-            app:layout_row="1" />
+            app:layout_row="0" />
 
         <TextView
             android:id="@+id/textViewDetailsName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text="Name"
             app:layout_column="2"
             app:layout_columnSpan="3"
-            app:layout_row="1" />
+            app:layout_row="0" />
 
         <TextView
             android:id="@+id/textViewDetailsIs_Closed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text="Is Closed"
             app:layout_column="2"
             app:layout_columnSpan="3"
-            app:layout_row="2" />
+            app:layout_row="1" />
 
         <TextView
             android:id="@+id/textViewsDetailsAddress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text="15271 sw 147 ave, Miami Fl 33187"
             app:layout_column="2"
             app:layout_columnSpan="3"
-            app:layout_row="3" />
+            app:layout_rowSpan="2"
+            app:layout_row="2" />
 
         <TextView
             android:id="@+id/textViewDetailsRatings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text="5.0"
             app:layout_column="2"
             app:layout_columnSpan="3"
             app:layout_row="4" />
@@ -65,7 +68,7 @@
             android:id="@+id/textViewDetailCategories"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text="Chineese Pizzeria"
             app:layout_column="2"
             app:layout_columnSpan="3"
             app:layout_row="5" />
@@ -74,7 +77,7 @@
             android:id="@+id/textViewDetailsPhoneNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text="3052557834"
             app:layout_column="2"
             app:layout_columnSpan="3"
             app:layout_row="6" />
@@ -83,7 +86,7 @@
             android:id="@+id/textViewDetailsPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text="$$$"
             app:layout_column="2"
             app:layout_columnSpan="3"
             app:layout_row="7" />

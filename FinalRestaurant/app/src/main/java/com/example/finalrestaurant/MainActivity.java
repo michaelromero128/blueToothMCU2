@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             try {
                                 InputStream inputStream = new java.net.URL(params).openStream();
                                 final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -130,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 Log.e("My tag", "Runnable finished");
                             } catch (Exception e) {
                                 Log.e("My tag", "failure on runnable");
-                                Log.e("My tag", e.getMessage()+e.getLocalizedMessage());
+                                Log.e("My tag", e.toString()+"/" + e.getCause().getMessage());
                             }
 
                         }
