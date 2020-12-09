@@ -23,7 +23,8 @@
         <Button
             android:id="@+id/detailsButtonToggleFavorite"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="82dp"
+            android:background="@drawable/ic_iconmonstr_favorite_toggle_on"
             app:layout_column="5"
             app:layout_row="0" />
 

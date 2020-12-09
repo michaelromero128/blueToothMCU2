@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 Log.e("My tag", "Runnable finished");
                             } catch (Exception e) {
                                 Log.e("My tag", "failure on runnable");
-                                Log.e("My tag", e.toString()+"/" + e.getCause().getMessage());
+                                Log.e("My tag", e.getMessage());
                             }
 
                         }

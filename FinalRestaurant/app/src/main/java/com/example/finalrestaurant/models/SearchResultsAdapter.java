@@ -40,8 +40,14 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolderSearchResults viewHolderSearchResults, final int position) {
+
         viewHolderSearchResults.getNameTextView().setText(restaurants.get(position).getName());
-        viewHolderSearchResults.getAddressTextView().setText(restaurants.get(position).getLocation().getDisplay_address().get(0));
+        Iterator iterator = restaurants.get(position).getLocation().getDisplay_address().iterator();
+        StringBuilder addressStringBuilder = new StringBuilder();
+        while(iterator.hasNext()){
+            addressStringBuilder.append(iterator.next()+"\n");
+        }
+        viewHolderSearchResults.getAddressTextView().setText(addressStringBuilder.subSequence(0,addressStringBuilder.length()-1));
         viewHolderSearchResults.getNumberTextView().setText(restaurants.get(position).getDisplay_phone());
         viewHolderSearchResults.getToDetailsButton().setOnClickListener(new View.OnClickListener() {
             @Override

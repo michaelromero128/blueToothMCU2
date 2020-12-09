@@ -95,23 +95,25 @@ public class DetailsFragment extends Fragment {
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsName)).setText(restaurant.getName());
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsIs_Closed)).setText(restaurant.getIs_closed() ? "Closed": "Open");
 
-        ((TextView) gridLayout.findViewById(R.id.textViewDetailsRatings)).setText(restaurant.getRating().toString());
+        ((TextView) gridLayout.findViewById(R.id.textViewDetailsRatings)).setText("Rating: " +restaurant.getRating().toString());
         StringBuilder categoriesStringBuilder = new StringBuilder();
         Iterator iterator = restaurant.getCategories().iterator();
         while(iterator.hasNext()) {
             categoriesStringBuilder.append(((Restaurant.Category) iterator.next()).getTitle() + ", ");
         }
 
-        ((TextView) gridLayout.findViewById(R.id.textViewDetailCategories)).setText(categoriesStringBuilder.subSequence(0,categoriesStringBuilder.length()).toString());
+        ((TextView) gridLayout.findViewById(R.id.textViewDetailCategories)).setText(categoriesStringBuilder.subSequence(0,categoriesStringBuilder.length()-2).toString());
 
         StringBuilder locationStringBuilder = new StringBuilder();
         iterator = restaurant.getLocation().getDisplay_address().iterator();
         while(iterator.hasNext()) {
             locationStringBuilder.append(iterator.next() + ", ");
         }
-        ((TextView) gridLayout.findViewById(R.id.textViewsDetailsAddress)).setText(locationStringBuilder.subSequence(0,locationStringBuilder.length()).toString());
+        ((TextView) gridLayout.findViewById(R.id.textViewsDetailsAddress)).setText(locationStringBuilder.subSequence(0,locationStringBuilder.length()-1).toString());
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsName)).setText(restaurant.getName());
-        ((TextView) gridLayout.findViewById(R.id.textViewDetailsPrice)).setText("Price: "+restaurant.getPrice());
+
+        String priceString = restaurant.getPrice() == null ? "Price: ???": "Price: "+restaurant.getPrice();
+        ((TextView) gridLayout.findViewById(R.id.textViewDetailsPrice)).setText(priceString);
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsPhoneNumber)).setText(restaurant.getDisplay_phone());
         //setting image view
         final String params = restaurant.getImage_url();
@@ -170,9 +172,9 @@ public class DetailsFragment extends Fragment {
             @Override
             public void onChanged(ArrayList<String> favorites) {
                 if (favorites.contains(restaurantID)) {
-                    button.setBackgroundResource(R.drawable.ic_iconmonstr_favorite_toggle_off);
+                    button.setBackgroundResource(R.drawable.ic_iconmonstr_favorite_on);
                 } else {
-                    button.setBackgroundResource(R.drawable.ic_iconmonstr_favorite_toggle_on);
+                    button.setBackgroundResource(R.drawable.ic_iconmonstr_favorite_off);
                 }
             }
         });

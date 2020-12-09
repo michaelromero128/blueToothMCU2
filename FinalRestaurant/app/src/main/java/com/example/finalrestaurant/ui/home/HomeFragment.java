@@ -25,6 +25,7 @@ import com.example.finalrestaurant.MainActivityViewModel;
 import com.example.finalrestaurant.R;
 import com.example.finalrestaurant.models.FavoritesAdapter;
 import com.example.finalrestaurant.models.Restaurant;
+import com.example.finalrestaurant.ui.details.DetailsViewModel;
 import com.example.finalrestaurant.ui.login.LoginViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -127,6 +128,7 @@ public class HomeFragment extends Fragment {
             }
         });
         Log.e("My tag", "after db get");
+
         return root;
     }
     public void setRestaurants(final ArrayList<String> keys){
@@ -188,11 +190,19 @@ public class HomeFragment extends Fragment {
 
             return;
         }
+
         HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
-        ArrayList<Restaurant> restaurants = homeViewModel.getRestaurants().getValue();
-        recyclerViewFavorites.setAdapter(new FavoritesAdapter(restaurants));
+        final ArrayList<Restaurant> restaurants = homeViewModel.getRestaurants().getValue();
         favoritesLoadingTextView.setVisibility(View.GONE);
         recyclerViewFavorites.setVisibility(View.VISIBLE);
+        final DetailsViewModel detailsViewModel = new ViewModelProvider(getActivity()).get(DetailsViewModel.class);
+        FavoritesAdapter.FavoritesAdapterViewModelInterface adapterInterface = new FavoritesAdapter.FavoritesAdapterViewModelInterface() {
+            @Override
+            public void onClick(int itemID) {
+                detailsViewModel.setRestaurant(restaurants.get(itemID));
+            }
+        };
+        recyclerViewFavorites.setAdapter(new FavoritesAdapter(restaurants, adapterInterface));
 
 
     }
