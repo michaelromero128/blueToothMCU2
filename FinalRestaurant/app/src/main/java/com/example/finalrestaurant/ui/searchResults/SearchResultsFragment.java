@@ -96,24 +96,24 @@ public class SearchResultsFragment extends Fragment {
         restaurants.observe(getActivity(), new Observer<ArrayList<Restaurant>>() {
             @Override
             public void onChanged(ArrayList<Restaurant> yelpSearchResults) {
-                updateUI();
+                updateUI(yelpSearchResults);
             }
         });
 
     }
-    private void updateUI(){
+    private void updateUI(final ArrayList<Restaurant> restaurants){
         Log.e("My tag", "updateUi called");
         if(recyclerViewSearchResults == null){
             return;
         }
         Log.e("My tag","recyclerview not null");
-        SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
-        final ArrayList<Restaurant> restaurants = searchEntryViewModel.getRestaurants().getValue();
+
         Log.e("My tag", restaurants.toString());
-        final DetailsViewModel detailsViewModel = new ViewModelProvider(getActivity()).get(DetailsViewModel.class);
+
         SearchResultsAdapter.SearchResultsAdapterViewModelInterface searchResultsAdapterViewModelInterface = new SearchResultsAdapter.SearchResultsAdapterViewModelInterface() {
             @Override
             public void onClick(int itemID) {
+                DetailsViewModel detailsViewModel = new ViewModelProvider(getActivity()).get(DetailsViewModel.class);
                 detailsViewModel.setRestaurant(restaurants.get(itemID));
             }
         };

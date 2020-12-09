@@ -27,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -107,7 +108,7 @@ public class DetailsFragment extends Fragment {
         StringBuilder locationStringBuilder = new StringBuilder();
         iterator = restaurant.getLocation().getDisplay_address().iterator();
         while(iterator.hasNext()) {
-            locationStringBuilder.append(iterator.next() + ", ");
+            locationStringBuilder.append(iterator.next() + "\n");
         }
         ((TextView) gridLayout.findViewById(R.id.textViewsDetailsAddress)).setText(locationStringBuilder.subSequence(0,locationStringBuilder.length()-1).toString());
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsName)).setText(restaurant.getName());
@@ -156,13 +157,14 @@ public class DetailsFragment extends Fragment {
     public void setFavoriteToggleButtonImage(View view, final String restaurantID, final HomeViewModel homeViewModel) {
         // set image for add favorite toggle
         final LiveData<ArrayList<String>> liveDataFavorites = homeViewModel.getFavoritesList();
-        ArrayList<String> favorites = liveDataFavorites.getValue();
+        ArrayList<String> favoritesID = liveDataFavorites.getValue();
+        final LiveData<ArrayList<Restaurant>> liveDataRestaurant = homeViewModel.getRestaurants();
         final Button button = (Button) view.findViewById(R.id.detailsButtonToggleFavorite);
         LoginViewModel loginViewModel = new ViewModelProvider(getActivity()).get(LoginViewModel.class);
         final String userID = loginViewModel.getUser().getValue().getUid();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         //sets the image
-        if (favorites.contains(restaurantID)) {
+        if (favoritesID.contains(restaurantID)) {
             button.setBackgroundResource(R.drawable.ic_iconmonstr_favorite_toggle_off);
         } else {
             button.setBackgroundResource(R.drawable.ic_iconmonstr_favorite_toggle_on);
@@ -191,6 +193,13 @@ public class DetailsFragment extends Fragment {
                     favorites.add(restaurantID);
                     favorites = new ArrayList(favorites);
                     homeViewModel.setFavoritesList(favorites);
+                    DetailsViewModel detailViewModel = new ViewModelProvider(getActivity()).get(DetailsViewModel.class);
+                    Restaurant restaurant = detailViewModel.getRestaurant().getValue();
+                    ArrayList<Restaurant> restaurants = liveDataRestaurant.getValue();
+                    restaurants.add(restaurant);
+                    restaurants = new ArrayList(restaurants);
+                    homeViewModel.setRestaurants(restaurants);
+
                 }
 
                 db.collection("users").document(userID).update("favorites", favorites);

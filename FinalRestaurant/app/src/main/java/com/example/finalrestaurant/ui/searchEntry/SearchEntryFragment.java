@@ -198,7 +198,7 @@ public class SearchEntryFragment extends Fragment {
     }
     private void handleInput(JSONObject response){
         Gson gson = new Gson();
-        YelpSearchResults yelpSearchResults = null;
+        YelpSearchResults yelpSearchResults = new YelpSearchResults();
         SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
         yelpSearchResults = gson.fromJson(response.toString(),YelpSearchResults.class);
         searchEntryViewModel.setRestaurants(yelpSearchResults.getBusinesses());

@@ -23,6 +23,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.finalrestaurant.models.Restaurant;
 import com.example.finalrestaurant.ui.home.HomeViewModel;
 import com.example.finalrestaurant.ui.login.LoginViewModel;
 import com.example.finalrestaurant.ui.searchEntry.SearchEntryViewModel;
@@ -31,6 +32,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -173,11 +175,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 FirebaseAuth.getInstance().signOut();
 
                 loginViewModel.setUser(null);
-                loginViewModel.setName(null);
-                loginViewModel.setEmail(null);
-                loginViewModel.setPhotoUrl(null);
-                homeViewModel.setFavoritesList(null);
-                homeViewModel.setRestaurants(null);
+                loginViewModel.setName("");
+                loginViewModel.setEmail("");
+                loginViewModel.setPhotoUrl("");
+                homeViewModel.setFavoritesList(new ArrayList<String>());
+                homeViewModel.setRestaurants(new ArrayList<Restaurant>());
 
                 navController.navigate(R.id.action_global_to_nav_login);
                 break;
@@ -189,8 +191,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             default:
                 loginViewModel.setUser(null);
-                loginViewModel.setName(null);
-                loginViewModel.setEmail(null);
+                loginViewModel.setName("");
+                loginViewModel.setEmail("");
                 navController.navigate(R.id.action_global_to_nav_login);
                 break;
         }
