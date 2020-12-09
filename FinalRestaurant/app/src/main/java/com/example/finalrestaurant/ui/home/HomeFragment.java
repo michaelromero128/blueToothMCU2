@@ -55,12 +55,27 @@ public class HomeFragment extends Fragment {
 
 
 
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         // inflate view
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         // homeViewModel listener
+        //recyclerViewFavorites = (RecyclerView) root.findViewById(R.id.recyclerViewFavorites);
+        recyclerViewFavorites = (RecyclerView) root.findViewById(R.id.recyclerViewFavorites);
+        //setup recycler view
+        recyclerViewFavorites.setHasFixedSize(false);
+        recyclerViewFavorites.setLayoutManager(new LinearLayoutManager(getActivity()));
+        //hide recyclerview and show loading textview
+        recyclerViewFavorites.setVisibility(View.GONE);
+        favoritesLoadingTextView = (TextView) root.findViewById(R.id.favoritesLoadingTextView);
+        favoritesLoadingTextView.setVisibility(View.VISIBLE);
+
         homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
         homeViewModel.getRestaurants().observe(getActivity(), new Observer<ArrayList<Restaurant>>() {
             @Override
@@ -68,7 +83,8 @@ public class HomeFragment extends Fragment {
                 if(restaurants != null) {
                     Log.e("My tag", "view model update detected");
                     Log.e("My tag", restaurants.toString());
-                    updateUI();
+
+                    updateUI(restaurants);
                 }
             }
         });
@@ -135,16 +151,16 @@ public class HomeFragment extends Fragment {
     public void setEmptyList(){
 
     }
-    public void updateUI(){
-        if(recyclerViewFavorites == null){
+    public void updateUI(final ArrayList<Restaurant> restaurants){
+//        if(recyclerViewFavorites == null){
+//
+//            return;
+//        }
 
-            return;
-        }
-
+        Log.e("My tag", "update UI start");
         HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
-        final ArrayList<Restaurant> restaurants = homeViewModel.getRestaurants().getValue();
-        favoritesLoadingTextView.setVisibility(View.GONE);
-        recyclerViewFavorites.setVisibility(View.VISIBLE);
+
+
         final DetailsViewModel detailsViewModel = new ViewModelProvider(getActivity()).get(DetailsViewModel.class);
         FavoritesAdapter.FavoritesAdapterViewModelInterface adapterInterface = new FavoritesAdapter.FavoritesAdapterViewModelInterface() {
             @Override
@@ -153,6 +169,10 @@ public class HomeFragment extends Fragment {
             }
         };
         recyclerViewFavorites.setAdapter(new FavoritesAdapter(restaurants, adapterInterface));
+        favoritesLoadingTextView.setVisibility(View.GONE);
+        recyclerViewFavorites.setVisibility(View.VISIBLE);
+        Log.e("My tag","update UI finished");
+
 
 
     }
@@ -160,14 +180,7 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState){
         //sets up recycler view after view has been created
         super.onViewCreated(view, savedInstanceState);
-        recyclerViewFavorites = (RecyclerView) view.findViewById(R.id.recyclerViewFavorites);
-        //setup recycler view
-        recyclerViewFavorites.setHasFixedSize(false);
-        recyclerViewFavorites.setLayoutManager(new LinearLayoutManager(getActivity()));
-        //hide recyclerview and show loading textview
-        recyclerViewFavorites.setVisibility(View.GONE);
-        favoritesLoadingTextView = (TextView) view.findViewById(R.id.favoritesLoadingTextView);
-        favoritesLoadingTextView.setVisibility(View.VISIBLE);
+
 
     }
 

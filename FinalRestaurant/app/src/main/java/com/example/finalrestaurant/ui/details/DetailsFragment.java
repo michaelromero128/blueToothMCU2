@@ -190,11 +190,14 @@ public class DetailsFragment extends Fragment {
                     favorites.remove(restaurantID);
                     favorites = new ArrayList(favorites);
                     homeViewModel.setFavoritesList(favorites);
-                    Iterator iterator = restaurants.iterator();
-                    while(iterator.hasNext()){
-                        Restaurant zeRestaurant = iterator.next();
-
+                    for(int i = 0; i < restaurants.size(); i++){
+                        if(restaurants.get(i).getId().equals(restaurantID)){
+                            restaurants.remove(i);
+                            break;
+                        }
                     }
+                    restaurants = new ArrayList(restaurants);
+                    homeViewModel.setRestaurants(restaurants);
                 } else {
                     favorites.add(restaurantID);
                     favorites = new ArrayList(favorites);
@@ -202,8 +205,8 @@ public class DetailsFragment extends Fragment {
                     DetailsViewModel detailViewModel = new ViewModelProvider(getActivity()).get(DetailsViewModel.class);
                     Restaurant restaurant = detailViewModel.getRestaurant().getValue();
                     restaurants.add(restaurant);
-                    restaurants = new ArrayList(restaurants);
-                    homeViewModel.setRestaurants(restaurants);
+                    ArrayList<Restaurant> newList = new ArrayList<>(restaurants);
+                    homeViewModel.setRestaurants(newList);
 
                 }
 
