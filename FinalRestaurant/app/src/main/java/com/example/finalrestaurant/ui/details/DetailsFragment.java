@@ -185,17 +185,22 @@ public class DetailsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 ArrayList<String> favorites = liveDataFavorites.getValue();
+                ArrayList<Restaurant> restaurants = liveDataRestaurant.getValue();
                 if (favorites.contains(restaurantID)) {
                     favorites.remove(restaurantID);
                     favorites = new ArrayList(favorites);
                     homeViewModel.setFavoritesList(favorites);
+                    Iterator iterator = restaurants.iterator();
+                    while(iterator.hasNext()){
+                        Restaurant zeRestaurant = iterator.next();
+
+                    }
                 } else {
                     favorites.add(restaurantID);
                     favorites = new ArrayList(favorites);
                     homeViewModel.setFavoritesList(favorites);
                     DetailsViewModel detailViewModel = new ViewModelProvider(getActivity()).get(DetailsViewModel.class);
                     Restaurant restaurant = detailViewModel.getRestaurant().getValue();
-                    ArrayList<Restaurant> restaurants = liveDataRestaurant.getValue();
                     restaurants.add(restaurant);
                     restaurants = new ArrayList(restaurants);
                     homeViewModel.setRestaurants(restaurants);
