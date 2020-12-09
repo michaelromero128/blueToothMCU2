@@ -18,6 +18,7 @@ public class HomeViewModel extends ViewModel {
         restaurants.setValue(null);
         favoritesList = new MutableLiveData<>();
         favoritesList.setValue(null);
+
     }
 
     public LiveData<ArrayList<Restaurant>> getRestaurants() {
@@ -30,4 +31,6 @@ public class HomeViewModel extends ViewModel {
     public void setFavoritesList(ArrayList<String> favoritesList){
         this.favoritesList.setValue(favoritesList);
     }
+
+
 }

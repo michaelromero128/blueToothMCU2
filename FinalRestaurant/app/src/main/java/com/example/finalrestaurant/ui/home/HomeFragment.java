@@ -76,58 +76,8 @@ public class HomeFragment extends Fragment {
         MainActivityViewModel mainActivityViewModel = new ViewModelProvider(requireActivity()).get(MainActivityViewModel.class);
         mainActivityViewModel.turnOn();
         //gets user id
-        LoginViewModel loginViewModel = new ViewModelProvider(requireActivity()).get(LoginViewModel.class);
-        FirebaseUser user = loginViewModel.getUser().getValue();
-        final String id = user.getUid();
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Log.e("My tag", "before db get");
-        // fetches favorites from firestore
-        db.collection("users").document(id).get(Source.SERVER).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
-            @Override
-            public void onComplete(Task<DocumentSnapshot> task) {
-                Log.e("My tag", "onComplete");
-                if(task.isSuccessful()) {
-                    Log.e("My tag", "task successful");
-                    DocumentSnapshot document = task.getResult();
-                    Map<String, Object> map =document.getData();
-                    if(map == null){
-                        Log.e("My tag", "found null data");
-                        final ArrayList<String> list = new ArrayList<>();
-                        Map<String, Object> data = new HashMap<>();
-                        data.put("favorites", list);
-                        db.collection("users").document(id).set(data).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.e("My tag", "document added");
-                                HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
-                                homeViewModel.setRestaurants(new ArrayList<Restaurant>());
 
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.e("My tag", "task unsuccessful, add on failure");
-                                Log.e("My tag", e.getMessage());
-                            }
-                        }).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                Log.e("My tag", "set task complete");
-                            }
-                        });
 
-                    }else{
-                        String key = "favorites";
-                        ArrayList<String> favorites =(ArrayList<String>) map.get(key);
-                        Log.e("My tag", favorites.toString());
-                        setRestaurants(favorites);
-
-                    }
-                }else{
-                }
-            }
-        });
-        Log.e("My tag", "after db get");
 
         return root;
     }

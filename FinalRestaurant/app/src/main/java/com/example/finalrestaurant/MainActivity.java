@@ -23,6 +23,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.finalrestaurant.ui.home.HomeViewModel;
 import com.example.finalrestaurant.ui.login.LoginViewModel;
 import com.example.finalrestaurant.ui.searchEntry.SearchEntryViewModel;
 import com.google.android.material.navigation.NavigationView;
@@ -164,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item){
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         LoginViewModel loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
+        HomeViewModel homeViewModel = new ViewModelProvider((this)).get(HomeViewModel.class);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         switch(item.getItemId()){
             case R.id.action_global_to_nav_login:
@@ -174,6 +176,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 loginViewModel.setName(null);
                 loginViewModel.setEmail(null);
                 loginViewModel.setPhotoUrl(null);
+                homeViewModel.setFavoritesList(null);
+                homeViewModel.setRestaurants(null);
+
                 navController.navigate(R.id.action_global_to_nav_login);
                 break;
             case R.id.action_global_to_nav_home:
