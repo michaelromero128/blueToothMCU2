@@ -20,6 +20,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.finalrestaurant.MainActivityViewModel;
 import com.example.finalrestaurant.R;
 import com.example.finalrestaurant.models.Restaurant;
@@ -42,8 +49,13 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -114,23 +126,102 @@ public class RegisterFragment extends Fragment {
                     loginViewModel.setName(name);
                     loginViewModel.setPhotoUrl(account.getPhotoUrl().toString());
                     final HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
-                    homeViewModel.setRestaurants(new ArrayList<Restaurant>());
-                    homeViewModel.setFavoritesList(new ArrayList<String>());
-
                     final FirebaseFirestore db = FirebaseFirestore.getInstance();
                     Map<String,Object> data = new HashMap<>();
                     final ArrayList<String> list = new ArrayList<>();
                     data.put("favorites",list);
-                    db.collection("users").document(user.getUid()).set(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    db.collection("users").document(user.getUid()).get(Source.SERVER).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
-                        public void onSuccess(Void aVoid) {
-                            Navigation.findNavController(getActivity(), R.id.nav_host_fragment).navigate(R.id.action_global_to_nav_home);
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if(task.isSuccessful()){
+                                Map<String, Object> map= task.getResult().getData();
+                                if(map == null){
+                                    homeViewModel.setRestaurants(new ArrayList<Restaurant>());
+                                    homeViewModel.setFavoritesList(new ArrayList<String>());
+                                    Map<String, Object> data = new HashMap<>();
+                                    data.put("favorites", new ArrayList<>());
+                                    db.collection("users").document(user.getUid()).set(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Navigation.findNavController(getActivity(), R.id.nav_host_fragment).navigate(R.id.action_global_to_nav_home);
+                                        }
+                                    });
+                                }else{
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                    builder.setNeutralButton("Ok", null);
 
+                                    builder.setMessage("You are already registered");
+                                    homeViewModel.setRestaurants(new ArrayList<Restaurant>());
+                                    homeViewModel.setFavoritesList(new ArrayList<String>());
+                                    AlertDialog dialogFragment = builder.create();
+                                    dialogFragment.show();
+                                    ArrayList<String> favorites =(ArrayList<String>) map.get("favorites");
+                                    Log.e("New tag", favorites.toString());
+                                    setRestaurants(favorites);
+                                    Navigation.findNavController(getActivity(), R.id.nav_host_fragment).navigate(R.id.action_global_to_nav_home);
+                                }
+
+                            }
                         }
                     });
+
                 } else {
                 }
             }
         });
+    }
+    public void setRestaurants(final ArrayList<String> keys){
+        // once given a set of keys from fire store, retrieves a list of restaurants from yelp.
+        //only updates the viewmodel if all restaurants are collected
+        if(keys.size() == 0){
+            setEmptyList();
+            return;
+        }
+        final ArrayList<Restaurant> restaurants = new ArrayList<>();
+        final HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
+        homeViewModel.setFavoritesList(keys);
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        for(int i = 0; i < keys.size(); i++){
+            String url = "https://api.yelp.com/v3/businesses/" + keys.get(i);
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    Gson gson = new Gson();
+                    Restaurant restaurant = gson.fromJson(response.toString(), Restaurant.class);
+                    restaurants.add(restaurant);
+                    if( restaurants.size()== keys.size()){
+                        Collections.sort(restaurants, new Comparator<Restaurant>() {
+                            @Override
+                            public int compare(Restaurant restaurant, Restaurant t1) {
+                                return restaurant.getName().compareTo(t1.getName());
+                            }
+                        });
+
+                        homeViewModel.setRestaurants(restaurants);
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e("My tag", "Volley Request failed");
+                    setEmptyList();
+                }
+            }){
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params =new HashMap<>(super.getHeaders());
+                    params.put("Authorization", "Bearer "+getString(R.string.yelp_api_key));
+                    return params;
+                }
+            };
+            queue.add(request);
+
+        }
+        Log.e("My tag","set restaurants method complete");
+
+    }
+    public void setEmptyList(){
+
     }
 }

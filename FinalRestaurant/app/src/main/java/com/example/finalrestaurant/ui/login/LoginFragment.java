@@ -238,6 +238,9 @@ public class LoginFragment extends Fragment {
 
     }
     public void setEmptyList(){
+        HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
+        homeViewModel.setFavoritesList(new ArrayList<String>());
+        homeViewModel.setRestaurants(new ArrayList<Restaurant>());
 
     }
 }
