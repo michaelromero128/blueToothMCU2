@@ -2,6 +2,8 @@ package com.example.finalrestaurant.ui.register;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,6 +72,9 @@ public class RegisterFragment extends Fragment {
         registerViewModel =
                 ViewModelProviders.of(this).get(RegisterViewModel.class);
         final View root = inflater.inflate(R.layout.fragment_register, container, false);
+        TextView tos = (TextView) root.findViewById(R.id.registerText);
+        tos.setMovementMethod(LinkMovementMethod.getInstance());
+        tos.setText(Html.fromHtml(getResources().getString(R.string.tos)));
         Button buttonAcceptRegister = (Button) root.findViewById(R.id.buttonApproveRegister);
         Button buttonDeclineRegister = (Button) root.findViewById(R.id.buttonRegisterDecline);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.auth_client_id)).requestEmail().requestProfile().build();

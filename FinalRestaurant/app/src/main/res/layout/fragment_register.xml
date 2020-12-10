@@ -26,4 +26,13 @@
         android:text="Accept"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/registerText"
+        android:layout_width="257dp"
+        android:layout_height="146dp"
+        android:layout_marginBottom="72dp"
+        android:text="Do you accept the terms of service which can found in the following link?\n&lt;a href='http://google.com/search?q=bad%20idea'>Terms of Service&lt;/a>"
+        app:layout_constraintBottom_toTopOf="@+id/buttonApproveRegister"
+        app:layout_constraintStart_toStartOf="@+id/buttonApproveRegister" />
 </androidx.constraintlayout.widget.ConstraintLayout>

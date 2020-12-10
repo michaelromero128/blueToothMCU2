@@ -18,6 +18,7 @@
     <string name="menu_logout">Log Out</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="tos">Do you accept the terms of service which can found in the following link?&lt;br>&lt;br>&lt;a href="http://google.com/search?q=bad%20idea">Terms of Service&lt;/a></string>
     <!-- TODO: Remove or change this placeholder text -->
 
 

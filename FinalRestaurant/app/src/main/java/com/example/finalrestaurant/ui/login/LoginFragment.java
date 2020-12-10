@@ -70,7 +70,7 @@ public class LoginFragment extends Fragment {
         Log.e("My_tag","login view started");
 
         final View root = inflater.inflate(R.layout.fragment_login, container, false);
-        final TextView textView = root.findViewById(R.id.text_home);
+
         MainActivityViewModel mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
         mainActivityViewModel.turnOff();
         LoginViewModel loginViewModel = new ViewModelProvider(getActivity()).get(LoginViewModel.class);
