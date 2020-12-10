@@ -23,15 +23,22 @@ import com.example.finalrestaurant.models.SearchResultsAdapter;
 import com.example.finalrestaurant.models.YelpSearchResults;
 import com.example.finalrestaurant.ui.details.DetailsViewModel;
 import com.example.finalrestaurant.ui.searchEntry.SearchEntryViewModel;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link SearchResultsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SearchResultsFragment extends Fragment {
+public class SearchResultsFragment extends Fragment implements OnMapReadyCallback {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,6 +49,8 @@ public class SearchResultsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private RecyclerView recyclerViewSearchResults;
+    private MapView mapView;
+    private GoogleMap googleMap;
 
     public SearchResultsFragment() {
         // Required empty public constructor
@@ -99,6 +108,10 @@ public class SearchResultsFragment extends Fragment {
                 updateUI(yelpSearchResults);
             }
         });
+        mapView = (MapView) view.findViewById(R.id.mapView);
+        mapView.onCreate(savedInstance);
+        mapView.onResume();
+        mapView.getMapAsync(this);
 
     }
     private void updateUI(final ArrayList<Restaurant> restaurants){
@@ -118,6 +131,33 @@ public class SearchResultsFragment extends Fragment {
             }
         };
         recyclerViewSearchResults.setAdapter(new SearchResultsAdapter(restaurants, searchResultsAdapterViewModelInterface));
+
+    }
+    @Override
+    public void onMapReady(final GoogleMap map){
+        SearchResultsViewModel searchResultsViewModel = new ViewModelProvider(getActivity()).get(SearchResultsViewModel.class);
+        LiveData<YelpSearchResults> searchResultsLiveData= searchResultsViewModel.getYelpSearchResultsMutableLiveData();
+        Log.e("My tag",searchResultsLiveData.getValue().getBusinesses().toString());
+        searchResultsLiveData.observe(getActivity(), new Observer<YelpSearchResults>() {
+            @Override
+            public void onChanged(YelpSearchResults yelpSearchResults) {
+                YelpSearchResults.Region.Center center = yelpSearchResults.getRegion().getCenter();
+                LatLng cameraCenter = new LatLng(center.getLatitude(),center.getLongitude());
+                map.moveCamera(CameraUpdateFactory.newLatLng(cameraCenter));
+                map.moveCamera(CameraUpdateFactory.zoomTo(12f));
+                SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
+                ArrayList<Restaurant> restaurants = searchEntryViewModel.getRestaurants().getValue();
+                Iterator iterator = restaurants.iterator();
+                while(iterator.hasNext()){
+                    Restaurant restaurant = (Restaurant) iterator.next();
+                    Restaurant.Coordinates coords =restaurant.getCoordinates();
+                    LatLng restaurantLatLng = new LatLng(coords.getLatitude(), coords.getLongitude());
+                    map.addMarker(new MarkerOptions().position(restaurantLatLng).title(restaurant.getName()));
+                    Log.e("My tag", "Marker placed");
+                }
+            }
+        });
+        googleMap = map;
 
     }
 }

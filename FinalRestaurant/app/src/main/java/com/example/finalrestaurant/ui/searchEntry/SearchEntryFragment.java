@@ -26,6 +26,7 @@ import com.example.finalrestaurant.MainActivityViewModel;
 import com.example.finalrestaurant.R;
 import com.example.finalrestaurant.models.GPSTracker;
 import com.example.finalrestaurant.models.YelpSearchResults;
+import com.example.finalrestaurant.ui.searchResults.SearchResultsViewModel;
 import com.google.gson.Gson;
 
 import org.json.JSONObject;
@@ -200,8 +201,10 @@ public class SearchEntryFragment extends Fragment {
         Gson gson = new Gson();
         YelpSearchResults yelpSearchResults = new YelpSearchResults();
         SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
+        SearchResultsViewModel searchResultsViewModel = new ViewModelProvider(getActivity()).get(SearchResultsViewModel.class);
         yelpSearchResults = gson.fromJson(response.toString(),YelpSearchResults.class);
         searchEntryViewModel.setRestaurants(yelpSearchResults.getBusinesses());
+        searchResultsViewModel.setYelpSearchResultsMutableLiveData(yelpSearchResults);
         NavDirections action = SearchEntryFragmentDirections.actionSearchEntryToNavSearchResults();
         View view = getView();
         if(view != null && yelpSearchResults != null){
