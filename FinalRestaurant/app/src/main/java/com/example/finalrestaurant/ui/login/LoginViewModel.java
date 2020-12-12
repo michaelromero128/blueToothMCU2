@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.auth.FirebaseUser;
 
+
+// ViewModel used to  store user information
 public class LoginViewModel extends ViewModel {
 
     private MutableLiveData<String> email;
@@ -14,6 +16,7 @@ public class LoginViewModel extends ViewModel {
     private MutableLiveData<FirebaseUser> user;
     private MutableLiveData<String> photoUrl;
 
+    // constructor
     public LoginViewModel() {
         email = new MutableLiveData<>();
         email.setValue(null);
@@ -24,7 +27,7 @@ public class LoginViewModel extends ViewModel {
         photoUrl = new MutableLiveData<String>();
         photoUrl.setValue(null);
     }
-
+    // setters and getters for the member variables
     public LiveData<String> getEmail() {
         return email;
     }

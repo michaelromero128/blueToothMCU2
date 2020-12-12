@@ -8,11 +8,11 @@ import com.example.finalrestaurant.models.Restaurant;
 
 import java.util.ArrayList;
 
+// view model that stores information regarding a logged in users favorites
 public class HomeViewModel extends ViewModel {
 
     private MutableLiveData<ArrayList<Restaurant>> restaurants;
     private MutableLiveData<ArrayList<String>> favoritesList;
-
     private MutableLiveData<Boolean> empty;
 
     public HomeViewModel() {
@@ -25,14 +25,13 @@ public class HomeViewModel extends ViewModel {
         empty = new MutableLiveData<>();
         empty.setValue(null);
     }
+    // getters and setters
     public LiveData<Boolean>getEmpty(){
         return empty;
     }
     public void setEmpty(Boolean status){
-
         empty.setValue(status);
     }
-
     public LiveData<ArrayList<Restaurant>> getRestaurants() {
         return restaurants;
     }
@@ -43,6 +42,4 @@ public class HomeViewModel extends ViewModel {
     public void setFavoritesList(ArrayList<String> favoritesList){
         this.favoritesList.setValue(favoritesList);
     }
-
-
 }

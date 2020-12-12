@@ -62,19 +62,19 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+// fragment to handle registration, redirects to login or homefragment
 public class RegisterFragment extends Fragment {
 
     private int RC_SIGN_IN = 0;
 
+    //------------------------------------------------------------------------------------------
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
         final View root = inflater.inflate(R.layout.fragment_register, container, false);
         //enables url link on text
         TextView tos = (TextView) root.findViewById(R.id.registerText);
         tos.setMovementMethod(LinkMovementMethod.getInstance());
         tos.setText(Html.fromHtml(getResources().getString(R.string.tos)));
-
         //attaches listener to start login activity on one button and navigate to login screen on the other
         Button buttonAcceptRegister = (Button) root.findViewById(R.id.buttonApproveRegister);
         Button buttonDeclineRegister = (Button) root.findViewById(R.id.buttonRegisterDecline);
@@ -99,6 +99,7 @@ public class RegisterFragment extends Fragment {
         return root;
     }
 
+    //------------------------------------------------------------------------------------------
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         //listener for when the activity finishes
@@ -113,8 +114,8 @@ public class RegisterFragment extends Fragment {
         }
     }
 
+    //------------------------------------------------------------------------------------------
     public void performLogin(final GoogleSignInAccount account) {
-
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         final FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -182,6 +183,9 @@ public class RegisterFragment extends Fragment {
             }
         });
     }
+
+    //------------------------------------------------------------------------------------------
+
     public void setRestaurants(final ArrayList<String> keys) throws InvalidParameterException {
         // once given a set of keys from fire store, retrieves a list of restaurants from yelp.
         //only updates the viewmodel if all restaurants are collected
@@ -233,6 +237,7 @@ public class RegisterFragment extends Fragment {
         Log.e("My tag","set restaurants method complete");
 
     }
+    //------------------------------------------------------------------------------------------
     public void setEmptyList(){
         // loads empty list for restaurants
         HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);

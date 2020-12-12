@@ -46,23 +46,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
+// fragment for the home page. landing page after login and accessible by the menu. lists favorites
+// businesses in a recycler view
 public class HomeFragment extends Fragment {
 
     private HomeViewModel homeViewModel;
     private TextView favoritesLoadingTextView;
     private RecyclerView recyclerViewFavorites;
     private TextView favoritesNothingTextView;
-
-
-
+//------------------------------------------------------------------------------------------
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         // makes this fragment persistent
         setRetainInstance(true);
     }
-
+    //------------------------------------------------------------------------------------------
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         // inflate view
@@ -103,6 +102,7 @@ public class HomeFragment extends Fragment {
         return root;
     }
 
+    //------------------------------------------------------------------------------------------
     public void updateUI(final ArrayList<Restaurant> restaurants){
         // loads appropriate text view if it isn't loaded or nothing in favorites
         // turns them off otherwise

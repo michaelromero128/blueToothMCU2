@@ -40,16 +40,17 @@ import java.util.Map;
  * Use the {@link SearchEntryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
+// fragment for the search input page, takes input from the user which can be text or the gps device
+// and develops a query to yelp based on that input, redirects to SearchResultFragment.
+// accessible by the drawer menu
 public class SearchEntryFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private String mParam1;
     private String mParam2;
 
-    // TODO: Rename and change types of parameters
 
     private EditText searchEditText;
     private EditText locationEditText;
@@ -60,7 +61,6 @@ public class SearchEntryFragment extends Fragment {
     public SearchEntryFragment() {
         // Required empty public constructor
     }
-
     public static SearchEntryFragment newInstance(String param1, String param2) {
         SearchEntryFragment fragment = new SearchEntryFragment();
         Bundle args = new Bundle();
@@ -80,7 +80,6 @@ public class SearchEntryFragment extends Fragment {
         MainActivityViewModel mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
         mainActivityViewModel.turnOn();
     }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -210,11 +209,9 @@ public class SearchEntryFragment extends Fragment {
         // converts json response into a YelpSearchResults object
         Gson gson = new Gson();
         YelpSearchResults yelpSearchResults;
-        SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
         SearchResultsViewModel searchResultsViewModel = new ViewModelProvider(getActivity()).get(SearchResultsViewModel.class);
         yelpSearchResults = gson.fromJson(response.toString(),YelpSearchResults.class);
-        // updates viewmodels
-        searchEntryViewModel.setRestaurants(yelpSearchResults.getBusinesses());
+        // updates viewmodel
         searchResultsViewModel.setYelpSearchResultsMutableLiveData(yelpSearchResults);
         //redirects to search results fragment
         NavDirections action = SearchEntryFragmentDirections.actionSearchEntryToNavSearchResults();
@@ -223,8 +220,5 @@ public class SearchEntryFragment extends Fragment {
         if(view != null && yelpSearchResults != null){
             Navigation.findNavController(view).navigate(action);
         }
-
-
-
     }
 }

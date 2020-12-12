@@ -21,7 +21,6 @@ import com.example.finalrestaurant.models.Restaurant;
 import com.example.finalrestaurant.models.SearchResultsAdapter;
 import com.example.finalrestaurant.models.YelpSearchResults;
 import com.example.finalrestaurant.ui.details.DetailsViewModel;
-import com.example.finalrestaurant.ui.searchEntry.SearchEntryViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -108,13 +107,13 @@ public class SearchResultsFragment extends Fragment implements OnMapReadyCallbac
         mapView.onCreate(savedInstance);
         mapView.onResume();
         mapView.getMapAsync(this);
-        SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
         //add listener to viewModel
-        LiveData<ArrayList<Restaurant>> restaurants = searchEntryViewModel .getRestaurants();
-        restaurants.observe(getActivity(), new Observer<ArrayList<Restaurant>>() {
+        SearchResultsViewModel searchResultsViewModel = new ViewModelProvider(getActivity()).get(SearchResultsViewModel.class);
+        LiveData<YelpSearchResults> yelpSearchResultsLiveData= searchResultsViewModel.getYelpSearchResultsMutableLiveData();
+        yelpSearchResultsLiveData.observe(getActivity(), new Observer<YelpSearchResults>() {
             @Override
-            public void onChanged(ArrayList<Restaurant> yelpSearchResults) {
-                updateUI(yelpSearchResults);
+            public void onChanged(YelpSearchResults yelpSearchResults) {
+                updateUI(yelpSearchResults.getBusinesses());
             }
         });
 
@@ -145,9 +144,8 @@ public class SearchResultsFragment extends Fragment implements OnMapReadyCallbac
         UiSettings uiSettings = map.getUiSettings();
         uiSettings.setZoomControlsEnabled(true);
         SearchResultsViewModel searchResultsViewModel = new ViewModelProvider(getActivity()).get(SearchResultsViewModel.class);
-        LiveData<YelpSearchResults> searchResultsLiveData= searchResultsViewModel.getYelpSearchResultsMutableLiveData();
+        final LiveData<YelpSearchResults> searchResultsLiveData= searchResultsViewModel.getYelpSearchResultsMutableLiveData();
         Log.e("My tag",searchResultsLiveData.getValue().getBusinesses().toString());
-        final SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
         //attach listener when map loads
         searchResultsLiveData.observe(getActivity(), new Observer<YelpSearchResults>() {
             @Override
@@ -172,7 +170,7 @@ public class SearchResultsFragment extends Fragment implements OnMapReadyCallbac
                 map.moveCamera(CameraUpdateFactory.newLatLng(cameraCenter));
                 map.moveCamera(CameraUpdateFactory.zoomTo(12f));
                 //iterates over restaurants searched and places a marker for each
-                ArrayList<Restaurant> restaurants = searchEntryViewModel.getRestaurants().getValue();
+                ArrayList<Restaurant> restaurants = searchResultsLiveData.getValue().getBusinesses();
                 Iterator iterator = restaurants.iterator();
                 while(iterator.hasNext()){
                     Restaurant restaurant = (Restaurant) iterator.next();

@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -56,14 +55,14 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+// fragment for login page. App starts here. Redirects to homefragment or register fragment
 public class LoginFragment extends Fragment {
 
     private Button buttonRegister;
     private Button buttonLogin;
-
     private int RC_SIGN_IN = 0;
 
-
+    //------------------------------------------------------------------------------------------
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         Log.e("My_tag","login view started");
@@ -107,10 +106,11 @@ public class LoginFragment extends Fragment {
                 }
             }
         });
-
         return root;
     }
 
+    //------------------------------------------------------------------------------------------
+    // performs login for the app by signing in with firebase and storing user info in the loginViewModel
     public void performLogin(final GoogleSignInAccount account){
         //starts login process
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
@@ -128,6 +128,7 @@ public class LoginFragment extends Fragment {
                     loginViewModel.setEmail(email);
                     loginViewModel.setName(name);
                     loginViewModel.setPhotoUrl(account.getPhotoUrl().toString());
+                    // gets the nav controller for the call backs when we send or receive stuff from firestore
                     final NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
                     Log.e("New tag", "updated loginviewModel");
                     final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -167,17 +168,13 @@ public class LoginFragment extends Fragment {
                             }
                         }
                     });
-
                 }else{
                     Log.e("My tag", "convert google login to firebase login failed");
                 }
-
             }
         });
-
-
-
     }
+    //------------------------------------------------------------------------------------------
     //listener for google login activity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
@@ -192,11 +189,13 @@ public class LoginFragment extends Fragment {
             }
         }
     }
+    //------------------------------------------------------------------------------------------
     public void setRestaurants(final ArrayList<String> keys) throws InvalidParameterException {
         // once given a set of keys from fire store, retrieves a list of restaurants from yelp.
         //only updates the viewmodel if all restaurants are collected
         if(keys.size() == 0){
             throw new InvalidParameterException("Parameter of zero given to setRestaurants");
+            // key list of zero size should be handled before calling this method
         }
         final ArrayList<Restaurant> restaurants = new ArrayList<>();
         final HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
@@ -222,7 +221,6 @@ public class LoginFragment extends Fragment {
                         });
                         homeViewModel.setEmpty(false);
                         homeViewModel.setRestaurants(restaurants);
-
                     }
                 }
             }, new Response.ErrorListener() {
@@ -240,13 +238,12 @@ public class LoginFragment extends Fragment {
                 }
             };
             queue.add(request);
-
         }
         Log.e("My tag","set restaurants method complete");
-
     }
+    //------------------------------------------------------------------------------------------
+    //sets view model to empty lists
     public void setEmptyList(){
-        //sets view model to empty lists
         HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
         homeViewModel.setFavoritesList(new ArrayList<String>());
         homeViewModel.setRestaurants(new ArrayList<Restaurant>());
