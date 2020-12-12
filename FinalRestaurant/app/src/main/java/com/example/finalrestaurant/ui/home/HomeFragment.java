@@ -83,9 +83,11 @@ public class HomeFragment extends Fragment {
             @Override
             public void onChanged(ArrayList<Restaurant> restaurants) {
                 if (restaurants != null) {
+                    // updates to empty state if last item is removed
                     if (restaurants.size() == 0 && homeViewModel.getEmpty() != null) {
                         homeViewModel.setEmpty(true);
                     }
+                    // updates to not empty state if an item is added to an empty list
                     if (restaurants.size() != 0) {
                         homeViewModel.setEmpty(false);
                     }
@@ -116,7 +118,6 @@ public class HomeFragment extends Fragment {
             favoritesNothingTextView.setVisibility(View.VISIBLE);
             favoritesLoadingTextView.setVisibility(View.GONE);
             return;
-        }else{
         }
         favoritesLoadingTextView.setVisibility(View.GONE);
         favoritesNothingTextView.setVisibility(View.GONE);

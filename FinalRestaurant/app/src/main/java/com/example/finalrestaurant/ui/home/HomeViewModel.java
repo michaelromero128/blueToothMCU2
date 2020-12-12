@@ -16,11 +16,12 @@ public class HomeViewModel extends ViewModel {
     private MutableLiveData<Boolean> empty;
 
     public HomeViewModel() {
+        // data of concern
         restaurants = new MutableLiveData<>();
         restaurants.setValue(null);
         favoritesList = new MutableLiveData<>();
         favoritesList.setValue(null);
-
+        // flag to see if model is not loaded yet, loaded and full, and loaded but empty
         empty = new MutableLiveData<>();
         empty.setValue(null);
     }

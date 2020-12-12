@@ -118,12 +118,13 @@ public class RegisterFragment extends Fragment {
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         final FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        //grabs user information and restaurant info
+        //logs user into firebase
         mAuth.signInWithCredential(credential).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(Task<AuthResult> task) {
                 Log.e("My tag", "onComplete");
                 if (task.isSuccessful()) {
+                    //grabs user information  and puts into viewmodel
                     Log.e("My tag", "task successful");
                     final FirebaseUser user = mAuth.getCurrentUser();
                     String email = user.getEmail();
@@ -159,7 +160,6 @@ public class RegisterFragment extends Fragment {
                                     //alert dialog if user data found and redirect
                                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                                     builder.setNeutralButton("Ok", null);
-
                                     builder.setMessage("You are already registered");
                                     homeViewModel.setRestaurants(new ArrayList<Restaurant>());
                                     homeViewModel.setFavoritesList(new ArrayList<String>());
@@ -178,8 +178,6 @@ public class RegisterFragment extends Fragment {
                             }
                         }
                     });
-
-                } else {
                 }
             }
         });
@@ -199,9 +197,11 @@ public class RegisterFragment extends Fragment {
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
+                    // converts json object to java object
                     Gson gson = new Gson();
                     Restaurant restaurant = gson.fromJson(response.toString(), Restaurant.class);
                     restaurants.add(restaurant);
+                    // checks if finished
                     if( restaurants.size()== keys.size()){
                         Collections.sort(restaurants, new Comparator<Restaurant>() {
                             @Override
@@ -209,11 +209,10 @@ public class RegisterFragment extends Fragment {
                                 return restaurant.getName().compareTo(t1.getName());
                             }
                         });
-
+                        // loads view model
                         homeViewModel.setRestaurants(restaurants);
                         homeViewModel.setEmpty(false);
                     }
-
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -230,12 +229,12 @@ public class RegisterFragment extends Fragment {
                 }
             };
             queue.add(request);
-
         }
         Log.e("My tag","set restaurants method complete");
 
     }
     public void setEmptyList(){
+        // loads empty list for restaurants
         HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
         homeViewModel.setFavoritesList(new ArrayList<String>());
         homeViewModel.setRestaurants(new ArrayList<Restaurant>());

@@ -115,6 +115,7 @@ public class SearchEntryFragment extends Fragment {
         }
         String locationText = locationEditText.getText().toString();
         String urlPrefix = "https://api.yelp.com/v3/businesses/search";
+
         if(locationText.equals("")){
             //grabs gps info if location is blank
             GPSTracker gps = new GPSTracker(this.getContext());
@@ -168,9 +169,11 @@ public class SearchEntryFragment extends Fragment {
             String urlSuffix = String.format("?term=%s&location=%s",searchText.replaceAll(" ", "%20"), locationText.replaceAll(" ", "%20"));
             // fires request to yelp
             RequestQueue queue = Volley.newRequestQueue(this.getActivity());
+            // query yelp
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, urlPrefix+urlSuffix,null, new Response.Listener<JSONObject>(){
                 @Override
                 public void onResponse(JSONObject response){
+                    // handles the response of the query
                     handleInput(response);
                 }
             }, new Response.ErrorListener(){
@@ -190,7 +193,6 @@ public class SearchEntryFragment extends Fragment {
                         errorTextView.setText("An error occured");
                     }
                     errorTextView.setVisibility(View.VISIBLE);
-
                 }
             }){
                 @Override
@@ -200,6 +202,7 @@ public class SearchEntryFragment extends Fragment {
                     return params;
                 }
             };
+            // sends request
             queue.add(request);
         }
     }
@@ -216,6 +219,7 @@ public class SearchEntryFragment extends Fragment {
         //redirects to search results fragment
         NavDirections action = SearchEntryFragmentDirections.actionSearchEntryToNavSearchResults();
         View view = getView();
+        //navigate to search results
         if(view != null && yelpSearchResults != null){
             Navigation.findNavController(view).navigate(action);
         }

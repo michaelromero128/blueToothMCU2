@@ -78,7 +78,7 @@ public class LoginFragment extends Fragment {
             Navigation.findNavController(root).navigate(action);
             return root;
         }
-        //starts sign in process
+        //starts sign in process on login button
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.auth_client_id)).requestEmail().requestProfile().build();
         final GoogleSignInClient signInClient = GoogleSignIn.getClient(getContext(),gso);
         buttonLogin = (Button) root.findViewById(R.id.buttonLogin);
@@ -203,7 +203,6 @@ public class LoginFragment extends Fragment {
         homeViewModel.setFavoritesList(keys);
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         // makes requests from yelp for each entry in the favorites list
-
         for(int i = 0; i < keys.size(); i++){
             String url = "https://api.yelp.com/v3/businesses/" + keys.get(i);
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -213,7 +212,6 @@ public class LoginFragment extends Fragment {
                     Restaurant restaurant = gson.fromJson(response.toString(), Restaurant.class);
                     //adds restaurant to restaurant list
                     restaurants.add(restaurant);
-
                     if( restaurants.size()== keys.size()){
                         //updates view model if all keys processed
                         Collections.sort(restaurants, new Comparator<Restaurant>() {
