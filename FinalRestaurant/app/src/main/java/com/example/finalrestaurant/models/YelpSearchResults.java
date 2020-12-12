@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 public class YelpSearchResults {
 
+    // Plain old java object formated for a json formated string
+
     private ArrayList<Restaurant> businesses;
     private Region region;
 

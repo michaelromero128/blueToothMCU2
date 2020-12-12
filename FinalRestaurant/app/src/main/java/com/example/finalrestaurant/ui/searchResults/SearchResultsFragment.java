@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,9 +13,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.finalrestaurant.MainActivityViewModel;
 import com.example.finalrestaurant.R;
 import com.example.finalrestaurant.models.Restaurant;
 import com.example.finalrestaurant.models.SearchResultsAdapter;
@@ -27,6 +26,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -50,8 +50,9 @@ public class SearchResultsFragment extends Fragment implements OnMapReadyCallbac
     private String mParam2;
     private RecyclerView recyclerViewSearchResults;
     private MapView mapView;
-    private GoogleMap googleMap;
+    private TextView errorTextView;
 
+    // template code from android studio, no idea what it does
     public SearchResultsFragment() {
         // Required empty public constructor
     }
@@ -81,6 +82,9 @@ public class SearchResultsFragment extends Fragment implements OnMapReadyCallbac
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        // turns on title bar
+        MainActivityViewModel mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+        mainActivityViewModel.turnOn();
     }
 
     @Override
@@ -99,6 +103,11 @@ public class SearchResultsFragment extends Fragment implements OnMapReadyCallbac
         recyclerViewSearchResults = (RecyclerView) view.findViewById(R.id.recyclerViewSearchResults);
         recyclerViewSearchResults.setHasFixedSize(false);
         recyclerViewSearchResults.setLayoutManager(new LinearLayoutManager(getActivity()));
+        errorTextView = (TextView) view.findViewById(R.id.searchResultErrorTextView);
+        mapView = (MapView) view.findViewById(R.id.mapView);
+        mapView.onCreate(savedInstance);
+        mapView.onResume();
+        mapView.getMapAsync(this);
         SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
         //add listener to viewModel
         LiveData<ArrayList<Restaurant>> restaurants = searchEntryViewModel .getRestaurants();
@@ -108,21 +117,19 @@ public class SearchResultsFragment extends Fragment implements OnMapReadyCallbac
                 updateUI(yelpSearchResults);
             }
         });
-        mapView = (MapView) view.findViewById(R.id.mapView);
-        mapView.onCreate(savedInstance);
-        mapView.onResume();
-        mapView.getMapAsync(this);
+
+
 
     }
     private void updateUI(final ArrayList<Restaurant> restaurants){
         Log.e("My tag", "updateUi called");
+        // updates recycler view
         if(recyclerViewSearchResults == null){
             return;
         }
+
         Log.e("My tag","recyclerview not null");
-
         Log.e("My tag", restaurants.toString());
-
         SearchResultsAdapter.SearchResultsAdapterViewModelInterface searchResultsAdapterViewModelInterface = new SearchResultsAdapter.SearchResultsAdapterViewModelInterface() {
             @Override
             public void onClick(int itemID) {
@@ -135,17 +142,36 @@ public class SearchResultsFragment extends Fragment implements OnMapReadyCallbac
     }
     @Override
     public void onMapReady(final GoogleMap map){
+        UiSettings uiSettings = map.getUiSettings();
+        uiSettings.setZoomControlsEnabled(true);
         SearchResultsViewModel searchResultsViewModel = new ViewModelProvider(getActivity()).get(SearchResultsViewModel.class);
         LiveData<YelpSearchResults> searchResultsLiveData= searchResultsViewModel.getYelpSearchResultsMutableLiveData();
         Log.e("My tag",searchResultsLiveData.getValue().getBusinesses().toString());
+        final SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
+        //attach listener when map loads
         searchResultsLiveData.observe(getActivity(), new Observer<YelpSearchResults>() {
             @Override
             public void onChanged(YelpSearchResults yelpSearchResults) {
-                YelpSearchResults.Region.Center center = yelpSearchResults.getRegion().getCenter();
+                // handles nothing returned
+                if(yelpSearchResults.getBusinesses().size() == 0){
+                    // sets error text, displays it and hides other views
+                    mapView.setVisibility(View.GONE);
+                    recyclerViewSearchResults.setVisibility(View.GONE);
+                    errorTextView.setVisibility(View.VISIBLE);
+                }else{
+                    // on successful search, hide error text, show other views
+                    errorTextView.setVisibility(View.GONE);
+                    mapView.setVisibility(View.VISIBLE);
+                    recyclerViewSearchResults.setVisibility(View.VISIBLE);
+                }
+                // loads map when yelpSearchResults change
+                // gets the center of the search results
+                final YelpSearchResults.Region.Center center = yelpSearchResults.getRegion().getCenter();
                 LatLng cameraCenter = new LatLng(center.getLatitude(),center.getLongitude());
+                // updates camera
                 map.moveCamera(CameraUpdateFactory.newLatLng(cameraCenter));
                 map.moveCamera(CameraUpdateFactory.zoomTo(12f));
-                SearchEntryViewModel searchEntryViewModel = new ViewModelProvider(getActivity()).get(SearchEntryViewModel.class);
+                //iterates over restaurants searched and places a marker for each
                 ArrayList<Restaurant> restaurants = searchEntryViewModel.getRestaurants().getValue();
                 Iterator iterator = restaurants.iterator();
                 while(iterator.hasNext()){
@@ -157,7 +183,5 @@ public class SearchResultsFragment extends Fragment implements OnMapReadyCallbac
                 }
             }
         });
-        googleMap = map;
-
     }
 }

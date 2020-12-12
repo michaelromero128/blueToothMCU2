@@ -13,12 +13,23 @@ public class HomeViewModel extends ViewModel {
     private MutableLiveData<ArrayList<Restaurant>> restaurants;
     private MutableLiveData<ArrayList<String>> favoritesList;
 
+    private MutableLiveData<Boolean> empty;
+
     public HomeViewModel() {
         restaurants = new MutableLiveData<>();
         restaurants.setValue(null);
         favoritesList = new MutableLiveData<>();
         favoritesList.setValue(null);
 
+        empty = new MutableLiveData<>();
+        empty.setValue(null);
+    }
+    public LiveData<Boolean>getEmpty(){
+        return empty;
+    }
+    public void setEmpty(Boolean status){
+
+        empty.setValue(status);
     }
 
     public LiveData<ArrayList<Restaurant>> getRestaurants() {

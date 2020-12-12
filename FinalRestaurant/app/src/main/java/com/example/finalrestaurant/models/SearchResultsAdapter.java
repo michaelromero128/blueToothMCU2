@@ -1,6 +1,5 @@
 package com.example.finalrestaurant.models;
 
-import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,13 +8,11 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.finalrestaurant.R;
-import com.example.finalrestaurant.ui.details.DetailsViewModel;
 import com.example.finalrestaurant.ui.searchResults.SearchResultsFragmentDirections;
 
 import java.util.ArrayList;
@@ -26,6 +23,7 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
     private ArrayList<Restaurant> restaurants;
     private SearchResultsAdapterViewModelInterface searchResultsAdapterViewModelInterface;
 
+    //constructor
     public SearchResultsAdapter(ArrayList<Restaurant> restaurants, SearchResultsAdapterViewModelInterface searchResultsAdapterViewModelInterface){
         this.restaurants = restaurants;
         this.searchResultsAdapterViewModelInterface = searchResultsAdapterViewModelInterface;
@@ -33,14 +31,14 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
     @NonNull
     @Override
     public ViewHolderSearchResults onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
+        // view inflater
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_search_results, parent, false);
         return new ViewHolderSearchResults(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolderSearchResults viewHolderSearchResults, final int position) {
-
+        // sets views when data is added, parses more complicated data
         viewHolderSearchResults.getNameTextView().setText(restaurants.get(position).getName());
         Iterator iterator = restaurants.get(position).getLocation().getDisplay_address().iterator();
         StringBuilder addressStringBuilder = new StringBuilder();
@@ -49,10 +47,13 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdap
         }
         viewHolderSearchResults.getAddressTextView().setText(addressStringBuilder.subSequence(0,addressStringBuilder.length()-1));
         viewHolderSearchResults.getNumberTextView().setText(restaurants.get(position).getDisplay_phone());
+        // sets listener on details button
         viewHolderSearchResults.getToDetailsButton().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // fires call back to update the details viewmodel
                 searchResultsAdapterViewModelInterface.onClick(position);
+                // navigate to details fragment
                 NavDirections action = SearchResultsFragmentDirections.actionNavSearchResultsToNavDetails();
                 Navigation.findNavController(view).navigate(action);
             }

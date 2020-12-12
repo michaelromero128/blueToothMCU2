@@ -23,6 +23,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
     private ArrayList<Restaurant> restaurants;
     private FavoritesAdapterViewModelInterface favoritesAdapterViewModelInterface;
 
+    ///constructor for adapter
     public FavoritesAdapter(ArrayList<Restaurant> restaurants, FavoritesAdapterViewModelInterface favoritesAdapterViewModelInterface){
         this.restaurants = restaurants;
         this.favoritesAdapterViewModelInterface = favoritesAdapterViewModelInterface;
@@ -30,14 +31,16 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
 
     @Override
     public ViewHolderFavorites onCreateViewHolder(ViewGroup parent, int viewType){
+        // onCreate for the view holder
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_favorites, parent, false);
         return new ViewHolderFavorites(view);
     }
 
     @Override
     public void onBindViewHolder(ViewHolderFavorites viewHolderFavorites, final int position){
+        // sets views after adapter is added
+        // parsing data
         Log.e("My tag", restaurants.get(position).getId());
-
         viewHolderFavorites.getNameTextView().setText(restaurants.get(position).getName());
         viewHolderFavorites.getPhoneNumberTextView().setText(restaurants.get(position).getDisplay_phone() );
         StringBuilder stringBuilderPhoneNumber = new StringBuilder();
@@ -46,10 +49,13 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
             stringBuilderPhoneNumber.append(iterator.next()+"\n");
         }
         viewHolderFavorites.getAddressTextView().setText(stringBuilderPhoneNumber.subSequence(0,stringBuilderPhoneNumber.length()-1));
+        // attaches call back for linking the entry on a favorites list to the details fragment
         viewHolderFavorites.getDetailsButton().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // fires call back
                 favoritesAdapterViewModelInterface.onClick(position);
+                // navigates to nav
                 NavDirections action = HomeFragmentDirections.actionNavHomeToNavDetails();
                 Navigation.findNavController(view).navigate(action);
             }
@@ -61,6 +67,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
     }
 
     public class ViewHolderFavorites extends RecyclerView.ViewHolder{
+        // gets all the views for the viewholder
         private TextView nameTextView;
         private TextView addressTextView;
         private TextView phoneNumberTextView;
@@ -81,6 +88,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
 
 
     }
+    // implemented by fragment so a call back function is passed to the adapter
     public interface FavoritesAdapterViewModelInterface{
         void onClick(int itemID);
     }

@@ -31,6 +31,7 @@ public class GPSTracker extends Service implements LocationListener {
     private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
 
     protected LocationManager locationManager;
+    // identical to version used during class
 
     public GPSTracker(Context context) {
         this.mContext = context;

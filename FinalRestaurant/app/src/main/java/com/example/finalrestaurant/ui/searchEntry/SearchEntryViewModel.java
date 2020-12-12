@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.finalrestaurant.models.Restaurant;
-import com.example.finalrestaurant.models.YelpSearchResults;
 
 import java.util.ArrayList;
 

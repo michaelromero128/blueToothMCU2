@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel;
 
 public class MainActivityViewModel extends ViewModel {
     private MutableLiveData<Boolean> showMenu = new MutableLiveData<Boolean>();
-
+// view model to toggle title bar
     public LiveData<Boolean> getMenuSetting(){
         if(showMenu.getValue() == null){
             showMenu = new MutableLiveData<Boolean>();

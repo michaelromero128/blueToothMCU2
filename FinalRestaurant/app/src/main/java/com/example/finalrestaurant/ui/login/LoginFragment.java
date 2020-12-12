@@ -49,6 +49,7 @@ import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -61,24 +62,23 @@ public class LoginFragment extends Fragment {
     private Button buttonLogin;
 
     private int RC_SIGN_IN = 0;
-    private View zeView;
-    private FirebaseAuth mAuth;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         Log.e("My_tag","login view started");
-
         final View root = inflater.inflate(R.layout.fragment_login, container, false);
-
+        //toggles title bar
         MainActivityViewModel mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
         mainActivityViewModel.turnOff();
+        // forces redirect if already logged in
         LoginViewModel loginViewModel = new ViewModelProvider(getActivity()).get(LoginViewModel.class);
         if(loginViewModel.getUser().getValue() != null){
             NavDirections action = MobileNavigationDirections.actionGlobalToNavHome();
             Navigation.findNavController(root).navigate(action);
             return root;
         }
+        //starts sign in process
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.auth_client_id)).requestEmail().requestProfile().build();
         final GoogleSignInClient signInClient = GoogleSignIn.getClient(getContext(),gso);
         buttonLogin = (Button) root.findViewById(R.id.buttonLogin);
@@ -88,10 +88,9 @@ public class LoginFragment extends Fragment {
             public void onClick(View view) {
                 Intent signInIntent = signInClient.getSignInIntent();
                 startActivityForResult(signInIntent,RC_SIGN_IN);
-
-
             }
         });
+        //redirect for register
         buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,6 +98,7 @@ public class LoginFragment extends Fragment {
                 Navigation.findNavController(view).navigate(action);
             }
         });
+        // signs out if user logs out
         loginViewModel.getUser().observe(getActivity(), new Observer<FirebaseUser>() {
             @Override
             public void onChanged(FirebaseUser firebaseUser) {
@@ -108,18 +108,18 @@ public class LoginFragment extends Fragment {
             }
         });
 
-        mAuth = FirebaseAuth.getInstance();
         return root;
     }
 
     public void performLogin(final GoogleSignInAccount account){
-
+        //starts login process
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-
+        final FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mAuth.signInWithCredential(credential).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()) {
+                    //updates view model
                     final FirebaseUser user = mAuth.getCurrentUser();
                     String email = user.getEmail();
                     String name = user.getDisplayName();
@@ -131,6 +131,7 @@ public class LoginFragment extends Fragment {
                     final NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
                     Log.e("New tag", "updated loginviewModel");
                     final FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    //checks current entry in firestore
                     db.collection("users").document(user.getUid()).get(Source.SERVER).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>(){
                         @Override
                         public void onComplete(Task<DocumentSnapshot> task) {
@@ -139,22 +140,26 @@ public class LoginFragment extends Fragment {
                                 Log.e("New tag", "task successful");
                                 DocumentSnapshot document = task.getResult();
                                 Map<String, Object> map =document.getData();
+                                //if nothing found in firestore, alert tells user to register
                                 if(map == null){
                                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                                     builder.setNeutralButton("Ok", null);
-
                                     builder.setMessage("Please Register First");
                                     AlertDialog dialogFragment = builder.create();
                                     dialogFragment.show();
                                     FirebaseAuth.getInstance().signOut();
                                     loginViewModel.setUser(null);
-
                                 }else{
+                                    //starts to load favorites into view model, then navigates to home page
                                     Log.e("New tag", map.toString() +"wuzzle");
                                     String key = "favorites";
                                     ArrayList<String> favorites =(ArrayList<String>) map.get(key);
                                     Log.e("New tag", favorites.toString());
-                                    setRestaurants(favorites);
+                                    if(favorites.size() == 0){
+                                        setEmptyList();
+                                    }else{
+                                        setRestaurants(favorites);
+                                    }
                                     navController.navigate(R.id.action_global_to_nav_home);
                                 }
                             }else{
@@ -173,6 +178,7 @@ public class LoginFragment extends Fragment {
 
 
     }
+    //listener for google login activity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode == RC_SIGN_IN){
@@ -186,17 +192,18 @@ public class LoginFragment extends Fragment {
             }
         }
     }
-    public void setRestaurants(final ArrayList<String> keys){
+    public void setRestaurants(final ArrayList<String> keys) throws InvalidParameterException {
         // once given a set of keys from fire store, retrieves a list of restaurants from yelp.
         //only updates the viewmodel if all restaurants are collected
         if(keys.size() == 0){
-            setEmptyList();
-            return;
+            throw new InvalidParameterException("Parameter of zero given to setRestaurants");
         }
         final ArrayList<Restaurant> restaurants = new ArrayList<>();
         final HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
         homeViewModel.setFavoritesList(keys);
         RequestQueue queue = Volley.newRequestQueue(getActivity());
+        // makes requests from yelp for each entry in the favorites list
+
         for(int i = 0; i < keys.size(); i++){
             String url = "https://api.yelp.com/v3/businesses/" + keys.get(i);
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -204,18 +211,21 @@ public class LoginFragment extends Fragment {
                 public void onResponse(JSONObject response) {
                     Gson gson = new Gson();
                     Restaurant restaurant = gson.fromJson(response.toString(), Restaurant.class);
+                    //adds restaurant to restaurant list
                     restaurants.add(restaurant);
+
                     if( restaurants.size()== keys.size()){
+                        //updates view model if all keys processed
                         Collections.sort(restaurants, new Comparator<Restaurant>() {
                             @Override
                             public int compare(Restaurant restaurant, Restaurant t1) {
                                 return restaurant.getName().compareTo(t1.getName());
                             }
                         });
-
+                        homeViewModel.setEmpty(false);
                         homeViewModel.setRestaurants(restaurants);
-                    }
 
+                    }
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -238,9 +248,10 @@ public class LoginFragment extends Fragment {
 
     }
     public void setEmptyList(){
+        //sets view model to empty lists
         HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
         homeViewModel.setFavoritesList(new ArrayList<String>());
         homeViewModel.setRestaurants(new ArrayList<Restaurant>());
-
+        homeViewModel.setEmpty(true);
     }
 }

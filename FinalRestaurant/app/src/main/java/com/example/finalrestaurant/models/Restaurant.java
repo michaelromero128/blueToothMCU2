@@ -1,13 +1,11 @@
 package com.example.finalrestaurant.models;
 
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Restaurant {
+    // plain old java object formated for json formated string
     String id;
-
     String name;
     String image_url;
     String url;

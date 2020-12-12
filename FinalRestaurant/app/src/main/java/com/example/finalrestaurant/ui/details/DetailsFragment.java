@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.finalrestaurant.MainActivityViewModel;
 import com.example.finalrestaurant.R;
 import com.example.finalrestaurant.models.Restaurant;
 import com.example.finalrestaurant.ui.home.HomeViewModel;
@@ -77,6 +78,9 @@ public class DetailsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        // turns on title bar
+        MainActivityViewModel mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+        mainActivityViewModel.turnOn();
     }
 
     @Override
@@ -89,22 +93,19 @@ public class DetailsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
-        //setting simple text views, some parsing
+        //setting simple text views, some data parsing
         DetailsViewModel detailsViewModel = new ViewModelProvider(getActivity()).get(DetailsViewModel.class);
         Restaurant restaurant = detailsViewModel.getRestaurant().getValue();
         GridLayout gridLayout = (GridLayout) view.findViewById(R.id.detailsFragmentGridLayout);
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsName)).setText(restaurant.getName());
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsIs_Closed)).setText(restaurant.getIs_closed() ? "Closed": "Open");
-
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsRatings)).setText("Rating: " +restaurant.getRating().toString());
         StringBuilder categoriesStringBuilder = new StringBuilder();
         Iterator iterator = restaurant.getCategories().iterator();
         while(iterator.hasNext()) {
             categoriesStringBuilder.append(((Restaurant.Category) iterator.next()).getTitle() + ", ");
         }
-
         ((TextView) gridLayout.findViewById(R.id.textViewDetailCategories)).setText(categoriesStringBuilder.subSequence(0,categoriesStringBuilder.length()-2).toString());
-
         StringBuilder locationStringBuilder = new StringBuilder();
         iterator = restaurant.getLocation().getDisplay_address().iterator();
         while(iterator.hasNext()) {
@@ -112,7 +113,6 @@ public class DetailsFragment extends Fragment {
         }
         ((TextView) gridLayout.findViewById(R.id.textViewsDetailsAddress)).setText(locationStringBuilder.subSequence(0,locationStringBuilder.length()-1).toString());
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsName)).setText(restaurant.getName());
-
         String priceString = restaurant.getPrice() == null ? "Price: ???": "Price: "+restaurant.getPrice();
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsPrice)).setText(priceString);
         ((TextView) gridLayout.findViewById(R.id.textViewDetailsPhoneNumber)).setText(restaurant.getDisplay_phone());
@@ -187,6 +187,7 @@ public class DetailsFragment extends Fragment {
                 ArrayList<String> favorites = liveDataFavorites.getValue();
                 ArrayList<Restaurant> restaurants = liveDataRestaurant.getValue();
                 if (favorites.contains(restaurantID)) {
+                    // if viewmodel has an entry, remove it
                     favorites.remove(restaurantID);
                     favorites = new ArrayList(favorites);
                     homeViewModel.setFavoritesList(favorites);
@@ -199,6 +200,7 @@ public class DetailsFragment extends Fragment {
                     restaurants = new ArrayList(restaurants);
                     homeViewModel.setRestaurants(restaurants);
                 } else {
+                    // if viewmodel doesn't have an entry, add it
                     favorites.add(restaurantID);
                     favorites = new ArrayList(favorites);
                     homeViewModel.setFavoritesList(favorites);
@@ -210,6 +212,7 @@ public class DetailsFragment extends Fragment {
 
                 }
 
+                // upload updated favorites array
                 db.collection("users").document(userID).update("favorites", favorites);
             }
         });

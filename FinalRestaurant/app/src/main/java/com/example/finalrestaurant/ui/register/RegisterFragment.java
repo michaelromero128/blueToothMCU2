@@ -55,6 +55,7 @@ import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -64,21 +65,20 @@ import java.util.Map;
 public class RegisterFragment extends Fragment {
 
     private int RC_SIGN_IN = 0;
-    private RegisterViewModel registerViewModel;
-    private FirebaseAuth mAuth;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        registerViewModel =
-                ViewModelProviders.of(this).get(RegisterViewModel.class);
+
         final View root = inflater.inflate(R.layout.fragment_register, container, false);
+        //enables url link on text
         TextView tos = (TextView) root.findViewById(R.id.registerText);
         tos.setMovementMethod(LinkMovementMethod.getInstance());
         tos.setText(Html.fromHtml(getResources().getString(R.string.tos)));
+
+        //attaches listener to start login activity on one button and navigate to login screen on the other
         Button buttonAcceptRegister = (Button) root.findViewById(R.id.buttonApproveRegister);
         Button buttonDeclineRegister = (Button) root.findViewById(R.id.buttonRegisterDecline);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.auth_client_id)).requestEmail().requestProfile().build();
-
         final GoogleSignInClient signInClient = GoogleSignIn.getClient(getContext(), gso);
         buttonAcceptRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,6 +93,7 @@ public class RegisterFragment extends Fragment {
                 Navigation.findNavController(view).navigate(R.id.action_global_to_nav_login);
             }
         });
+        //turn off title bar
         MainActivityViewModel mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
         mainActivityViewModel.turnOff();
         return root;
@@ -100,6 +101,7 @@ public class RegisterFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //listener for when the activity finishes
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
@@ -115,7 +117,8 @@ public class RegisterFragment extends Fragment {
 
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        mAuth = FirebaseAuth.getInstance();
+        final FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        //grabs user information and restaurant info
         mAuth.signInWithCredential(credential).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(Task<AuthResult> task) {
@@ -141,6 +144,7 @@ public class RegisterFragment extends Fragment {
                             if(task.isSuccessful()){
                                 Map<String, Object> map= task.getResult().getData();
                                 if(map == null){
+                                    // if no data found in system, adds empty arrays to data under user id
                                     homeViewModel.setRestaurants(new ArrayList<Restaurant>());
                                     homeViewModel.setFavoritesList(new ArrayList<String>());
                                     Map<String, Object> data = new HashMap<>();
@@ -152,6 +156,7 @@ public class RegisterFragment extends Fragment {
                                         }
                                     });
                                 }else{
+                                    //alert dialog if user data found and redirect
                                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                                     builder.setNeutralButton("Ok", null);
 
@@ -162,7 +167,11 @@ public class RegisterFragment extends Fragment {
                                     dialogFragment.show();
                                     ArrayList<String> favorites =(ArrayList<String>) map.get("favorites");
                                     Log.e("New tag", favorites.toString());
-                                    setRestaurants(favorites);
+                                    if(favorites.size() == 0){
+                                        setEmptyList();
+                                    }else{
+                                        setRestaurants(favorites);
+                                    }
                                     Navigation.findNavController(getActivity(), R.id.nav_host_fragment).navigate(R.id.action_global_to_nav_home);
                                 }
 
@@ -175,12 +184,11 @@ public class RegisterFragment extends Fragment {
             }
         });
     }
-    public void setRestaurants(final ArrayList<String> keys){
+    public void setRestaurants(final ArrayList<String> keys) throws InvalidParameterException {
         // once given a set of keys from fire store, retrieves a list of restaurants from yelp.
         //only updates the viewmodel if all restaurants are collected
         if(keys.size() == 0){
-            setEmptyList();
-            return;
+            throw new InvalidParameterException("Parameter of zero given");
         }
         final ArrayList<Restaurant> restaurants = new ArrayList<>();
         final HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
@@ -203,6 +211,7 @@ public class RegisterFragment extends Fragment {
                         });
 
                         homeViewModel.setRestaurants(restaurants);
+                        homeViewModel.setEmpty(false);
                     }
 
                 }
@@ -227,6 +236,9 @@ public class RegisterFragment extends Fragment {
 
     }
     public void setEmptyList(){
-
+        HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
+        homeViewModel.setFavoritesList(new ArrayList<String>());
+        homeViewModel.setRestaurants(new ArrayList<Restaurant>());
+        homeViewModel.setEmpty(true);
     }
 }
