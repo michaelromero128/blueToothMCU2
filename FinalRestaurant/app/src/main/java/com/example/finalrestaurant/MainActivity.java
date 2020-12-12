@@ -26,7 +26,6 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.finalrestaurant.models.Restaurant;
 import com.example.finalrestaurant.ui.home.HomeViewModel;
 import com.example.finalrestaurant.ui.login.LoginViewModel;
-import com.example.finalrestaurant.ui.searchEntry.SearchEntryViewModel;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -41,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private AppBarConfiguration mAppBarConfiguration;
     private MainActivityViewModel mainActivityViewModel;
-    private SearchEntryViewModel searchEntryViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
