@@ -119,8 +119,9 @@ public class SearchEntryFragment extends Fragment {
             Double longitude = null;
             Double latitude = null;
             if(gps.canGetLocation()){
-                longitude =  1.0*(((int) gps.getLongitude()*10000)/10000);
-                latitude = 1.0*(((int) gps.getLatitude()*10000)/10000);
+                longitude =  1.0*(((int) gps.getLongitude()*10000))/10000;
+                latitude = 1.0*(((int) gps.getLatitude()*10000))/10000;
+                Log.e("My tag", String.format("lat: %s\nlon:%s",latitude, longitude));
             }else{
                 errorTextView.setText("Please allow GPS access in your permission settings to enable search without location");
                 errorTextView.setVisibility(View.VISIBLE);
@@ -129,6 +130,7 @@ public class SearchEntryFragment extends Fragment {
             if(latitude != null){
                 // if gps info successfully retrieved, query yelp
                 String urlSuffix = String.format("?term=%s&longitude=%s&latitude=%s",searchText.replaceAll(" ", "%20"),longitude,latitude);
+                Log.e("My tag",urlSuffix);
                 RequestQueue queue = Volley.newRequestQueue(this.getActivity());
                 JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, urlPrefix + urlSuffix, null, new Response.Listener<JSONObject>() {
                     @Override
