@@ -83,6 +83,12 @@ public class SearchEntryFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_search_entry, container, false);
+
+        return view;
+    }
+    @Override
+    public void onViewCreated(View view, Bundle savedInstance){
+        super.onViewCreated(view, savedInstance);
         // gets all the views and buttons
         Button buttonSubmitSearch = (Button) view.findViewById(R.id.submitSearchButton);
         searchEditText =(EditText) view.findViewById(R.id.searchEditText);
@@ -97,8 +103,8 @@ public class SearchEntryFragment extends Fragment {
                 search();
             }
         });
-        return view;
     }
+
     // function fired when search button entered
     private void search(){
         // hides error text when search begins
@@ -115,12 +121,13 @@ public class SearchEntryFragment extends Fragment {
 
         if(locationText.equals("")){
             //grabs gps info if location is blank
-            GPSTracker gps = new GPSTracker(this.getContext());
+            GPSTracker gps = new GPSTracker(getContext());
             Double longitude = null;
             Double latitude = null;
             if(gps.canGetLocation()){
-                longitude =  1.0*(((int) gps.getLongitude()*10000))/10000;
-                latitude = 1.0*(((int) gps.getLatitude()*10000))/10000;
+                longitude =  gps.getLongitude();
+
+                latitude =  gps.getLatitude();
                 Log.e("My tag", String.format("lat: %s\nlon:%s",latitude, longitude));
             }else{
                 errorTextView.setText("Please allow GPS access in your permission settings to enable search without location");
