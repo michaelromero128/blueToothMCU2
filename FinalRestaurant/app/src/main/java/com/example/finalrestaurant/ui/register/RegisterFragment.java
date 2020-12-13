@@ -149,6 +149,7 @@ public class RegisterFragment extends Fragment {
                                     // if no data found in system, adds empty arrays to data under user id
                                     homeViewModel.setRestaurants(new ArrayList<Restaurant>());
                                     homeViewModel.setFavoritesList(new ArrayList<String>());
+                                    homeViewModel.setEmpty(true);
                                     Map<String, Object> data = new HashMap<>();
                                     data.put("favorites", new ArrayList<>());
                                     db.collection("users").document(user.getUid()).set(data).addOnSuccessListener(new OnSuccessListener<Void>() {

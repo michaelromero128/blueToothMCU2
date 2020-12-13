@@ -121,6 +121,10 @@ public class SearchEntryFragment extends Fragment {
             if(gps.canGetLocation()){
                 longitude =  1.0*(((int) gps.getLongitude()*10000)/10000);
                 latitude = 1.0*(((int) gps.getLatitude()*10000)/10000);
+            }else{
+                errorTextView.setText("Please allow GPS access in your permission settings to enable search without location");
+                errorTextView.setVisibility(View.VISIBLE);
+                return;
             }
             if(latitude != null){
                 // if gps info successfully retrieved, query yelp
@@ -138,12 +142,15 @@ public class SearchEntryFragment extends Fragment {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         try{
-                            Log.e("MyTag", new String(error.networkResponse.data,"UTF-8"));
+                            //checks for bad location
+                            String errorMessage = new String(error.networkResponse.data,"UTF-8");
+                            if(errorMessage.matches(".*latitude.*")){
+                                errorTextView.setText("Your GPS is providing an invalid location");
+                            }else if(errorMessage.matches(".*longitude.*")){
+                                errorTextView.setText("Your GPS is providing an invalid location");                            }
                         }catch(Exception e){
-                            Log.e("MyTag", "didn't get network response data");
+                            errorTextView.setText("An error occured");
                         }
-                        errorTextView.setText("Service is down, try again later");
-                        errorTextView.setVisibility(View.VISIBLE);
                     }
                 }){
                     @Override

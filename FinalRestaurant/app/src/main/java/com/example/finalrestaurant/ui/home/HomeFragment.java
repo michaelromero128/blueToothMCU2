@@ -95,7 +95,7 @@ public class HomeFragment extends Fragment {
                     // updates to empty state if last item is removed
 
                     // updates to not empty state if an item is added to an empty list
-                    
+
                     Log.e("My tag", "view model update detected");
                     Log.e("My tag", restaurants.toString());
                     updateUI(restaurants);
