@@ -5,21 +5,22 @@ import java.util.ArrayList;
 
 public class Restaurant {
     // plain old java object formated for json formated string
-    String id;
-    String name;
-    String image_url;
-    String url;
-    Boolean is_closed;
-    ArrayList<Category> categories;
-    Integer review_count;
-    Double rating;
-    ArrayList<String> transactions;
-    String price;
-    Coordinates coordinates;
-    String phone;
-    String display_phone;
-    Double distance;
-    Location location;
+    // have to use these variable names so the json is parsed correctlyurl
+    private String id;
+    private String name;
+    private String image_url;
+    private String url;
+    private Boolean is_closed;
+    private ArrayList<Category> categories;
+    private Integer review_count;
+    private Double rating;
+    private ArrayList<String> transactions;
+    private String price;
+    private Coordinates coordinates;
+    private String phone;
+    private String display_phone;
+    private Double distance;
+    private Location location;
 
 
     public String getId() {
@@ -149,8 +150,8 @@ public class Restaurant {
     }
 
     public class Category{
-        String alias;
-        String title;
+        private String alias;
+        private String title;
 
         public String getAlias() {
             return alias;
@@ -169,8 +170,8 @@ public class Restaurant {
         }
     }
     public class Coordinates{
-        Double latitude;
-        Double longitude;
+        private Double latitude;
+        private Double longitude;
 
         public Double getLatitude() {
             return latitude;
@@ -189,14 +190,14 @@ public class Restaurant {
         }
     }
     public class Location{
-        String address1;
-        String address2;
-        String address3;
-        String city;
-        String zip_code;
-        String country;
-        String state;
-        ArrayList<String> display_address;
+        private String address1;
+        private String address2;
+        private String address3;
+        private String city;
+        private String zip_code;
+        private String country;
+        private String state;
+        private ArrayList<String> display_address;
 
         public String getAddress1() {
             return address1;

@@ -29,10 +29,16 @@
 
     <TextView
         android:id="@+id/registerText"
-        android:layout_width="257dp"
-        android:layout_height="146dp"
-        android:layout_marginBottom="72dp"
-        android:text="Do you accept the terms of service which can found in the following link?\n&lt;a href='http://google.com/search?q=bad%20idea'>Terms of Service&lt;/a>"
+        android:layout_width="328dp"
+        android:layout_height="231dp"
+        android:layout_marginStart="40dp"
+
+        android:layout_marginLeft="40dp"
+        android:layout_marginBottom="56dp"
+        android:text="Do you accept the terms of service which can found in the following link?\n
+            &lt;a href='http://google.com/search?q=bad%20idea'>Terms of Service&lt;/a>\nBy accepting
+            out terms of service you also agree to the yelp terms of service, which powers this app.
+             Their terms of service is in the following link.\n&lt;a href='https://terms.yelp.com/tos'>Yelp Terms of Service&lt;/a>"
         app:layout_constraintBottom_toTopOf="@+id/buttonApproveRegister"
-        app:layout_constraintStart_toStartOf="@+id/buttonApproveRegister" />
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

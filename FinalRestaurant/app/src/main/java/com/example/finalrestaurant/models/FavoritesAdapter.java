@@ -7,13 +7,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.finalrestaurant.R;
-import com.example.finalrestaurant.ui.details.DetailsViewModel;
 import com.example.finalrestaurant.ui.home.HomeFragmentDirections;
 
 import java.util.ArrayList;
@@ -72,6 +70,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
         private TextView addressTextView;
         private TextView phoneNumberTextView;
         private Button detailsButton;
+
         public ViewHolderFavorites(View view){
             super(view);
 

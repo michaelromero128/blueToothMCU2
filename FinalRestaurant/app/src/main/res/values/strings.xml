@@ -18,7 +18,10 @@
     <string name="menu_logout">Log Out</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="tos">Do you accept the terms of service which can found in the following link?&lt;br>&lt;br>&lt;a href="http://google.com/search?q=bad%20idea">Terms of Service&lt;/a></string>
+    <string name="tos">Do you accept the terms of service which can found in the following link?&lt;br>&lt;br>
+            &lt;a href=\'http://google.com/search?q=bad%20idea\'>Terms of Service&lt;/a>&lt;br>&lt;br>By accepting
+            out terms of service you also agree to the yelp terms of service, which powers this app.
+             Their terms of service is in the following link.&lt;br>&lt;br>&lt;a href=\'https://terms.yelp.com/tos\'>Yelp Terms of Service&lt;/a></string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyClzw4AkD5p2C6wz0_Z_PBp-1tzAONkiaE</string>
 

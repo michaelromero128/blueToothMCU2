@@ -39,7 +39,6 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     private AppBarConfiguration mAppBarConfiguration;
-    private MainActivityViewModel mainActivityViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        // Passing each menu ID as a set of Ids because each
+        // Passing each menu -D as a set of Ids because each
         // menu should be considered as top level destinations.
         Set<Integer> topLevelDestinations = new HashSet<>();
         topLevelDestinations.add(R.id.nav_login);
@@ -69,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
 
         // various listeners for toggling the title bar or user profile information
-        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+        MainActivityViewModel mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
         mainActivityViewModel.getMenuSetting().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
@@ -156,11 +155,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item){
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        LoginViewModel loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
-        HomeViewModel homeViewModel = new ViewModelProvider((this)).get(HomeViewModel.class);
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         switch(item.getItemId()){
             case R.id.action_global_to_nav_login:
+                LoginViewModel loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
+                HomeViewModel homeViewModel = new ViewModelProvider((this)).get(HomeViewModel.class);
                 loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
                 FirebaseAuth.getInstance().signOut();
                 loginViewModel.setUser(null);
