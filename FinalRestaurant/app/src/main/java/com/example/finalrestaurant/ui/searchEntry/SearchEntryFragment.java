@@ -150,7 +150,10 @@ public class SearchEntryFragment extends Fragment {
                                 errorTextView.setText("Your GPS is providing an invalid location");                            }
                         }catch(Exception e){
                             errorTextView.setText("An error occured");
+                        }finally {
+                            errorTextView.setVisibility(View.VISIBLE);
                         }
+
                     }
                 }){
                     @Override
