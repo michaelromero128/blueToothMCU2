@@ -194,8 +194,12 @@ public class DetailsFragment extends Fragment {
                             break;
                         }
                     }
+
                     restaurants = new ArrayList(restaurants);
                     homeViewModel.setRestaurants(restaurants);
+                    if(restaurants.size() == 0){
+                        homeViewModel.setEmpty(true);
+                    }
                 } else {
                     // if viewmodel doesn't have an entry, add it
                     favorites.add(restaurantID);
@@ -206,7 +210,7 @@ public class DetailsFragment extends Fragment {
                     restaurants.add(restaurant);
                     ArrayList<Restaurant> newList = new ArrayList<>(restaurants);
                     homeViewModel.setRestaurants(newList);
-
+                    homeViewModel.setEmpty(false);
                 }
 
                 // upload updated favorites array

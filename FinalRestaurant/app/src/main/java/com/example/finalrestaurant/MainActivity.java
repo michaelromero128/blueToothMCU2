@@ -169,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 loginViewModel.setPhotoUrl("");
                 homeViewModel.setFavoritesList(new ArrayList<String>());
                 homeViewModel.setRestaurants(new ArrayList<Restaurant>());
+                homeViewModel.setEmpty(null);
                 navController.navigate(R.id.action_global_to_nav_login);
                 break;
             case R.id.action_global_to_nav_home:

@@ -18,9 +18,9 @@ public class HomeViewModel extends ViewModel {
     public HomeViewModel() {
         // data of concern
         restaurants = new MutableLiveData<>();
-        restaurants.setValue(null);
+        restaurants.setValue(new ArrayList<Restaurant>());
         favoritesList = new MutableLiveData<>();
-        favoritesList.setValue(null);
+        favoritesList.setValue(new ArrayList<String>());
         // flag to see if model is not loaded yet, loaded and full, and loaded but empty
         empty = new MutableLiveData<>();
         empty.setValue(null);

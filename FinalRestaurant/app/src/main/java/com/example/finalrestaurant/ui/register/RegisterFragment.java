@@ -195,6 +195,7 @@ public class RegisterFragment extends Fragment {
         final ArrayList<Restaurant> restaurants = new ArrayList<>();
         final HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
         homeViewModel.setFavoritesList(keys);
+        homeViewModel.setEmpty(null);
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         for(int i = 0; i < keys.size(); i++){
             String url = "https://api.yelp.com/v3/businesses/" + keys.get(i);

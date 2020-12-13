@@ -68,7 +68,6 @@ public class HomeFragment extends Fragment {
         while(fragmentManager.getBackStackEntryCount() !=0){
             fragmentManager.popBackStack();
         }
-        Log.e("My tag",Integer.toString(fragmentManager.getBackStackEntryCount()));
 
     }
     //------------------------------------------------------------------------------------------
@@ -94,13 +93,9 @@ public class HomeFragment extends Fragment {
             public void onChanged(ArrayList<Restaurant> restaurants) {
                 if (restaurants != null) {
                     // updates to empty state if last item is removed
-                    if (restaurants.size() == 0 && homeViewModel.getEmpty() != null) {
-                        homeViewModel.setEmpty(true);
-                    }
+
                     // updates to not empty state if an item is added to an empty list
-                    if (restaurants.size() != 0) {
-                        homeViewModel.setEmpty(false);
-                    }
+                    
                     Log.e("My tag", "view model update detected");
                     Log.e("My tag", restaurants.toString());
                     updateUI(restaurants);

@@ -166,6 +166,7 @@ public class LoginFragment extends Fragment {
                                         setEmptyList();
                                     }else{
                                         setRestaurants(favorites);
+
                                     }
 
                                     navController.navigate(R.id.action_global_to_nav_home);
@@ -207,6 +208,7 @@ public class LoginFragment extends Fragment {
         final ArrayList<Restaurant> restaurants = new ArrayList<>();
         final HomeViewModel homeViewModel = new ViewModelProvider(getActivity()).get(HomeViewModel.class);
         homeViewModel.setFavoritesList(keys);
+        homeViewModel.setEmpty(null);
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         // makes requests from yelp for each entry in the favorites list
         for(int i = 0; i < keys.size(); i++){
