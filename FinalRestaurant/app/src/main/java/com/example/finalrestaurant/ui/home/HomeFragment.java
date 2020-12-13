@@ -9,8 +9,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -60,11 +63,19 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         // makes this fragment persistent
         setRetainInstance(true);
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        // empties back stack
+        while(fragmentManager.getBackStackEntryCount() !=0){
+            fragmentManager.popBackStack();
+        }
+        Log.e("My tag",Integer.toString(fragmentManager.getBackStackEntryCount()));
+
     }
     //------------------------------------------------------------------------------------------
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         // inflate view
+
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         //setup recycler view
         recyclerViewFavorites = (RecyclerView) root.findViewById(R.id.recyclerViewFavorites);

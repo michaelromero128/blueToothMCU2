@@ -24,8 +24,9 @@
         tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_nav_login_to_nav_register"
-            app:destination="@+id/nav_register">
-        </action>
+            app:destination="@+id/nav_register"
+            app:enterAnim="@anim/fragment_fade_enter"
+            app:exitAnim="@anim/fragment_fade_exit"></action>
     </fragment>
     <fragment
         android:id="@+id/nav_register"

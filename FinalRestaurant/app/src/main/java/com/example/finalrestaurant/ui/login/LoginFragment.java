@@ -71,17 +71,24 @@ public class LoginFragment extends Fragment {
         MainActivityViewModel mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
         mainActivityViewModel.turnOff();
         // forces redirect if already logged in
+
+        return root;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view,savedInstanceState);
         LoginViewModel loginViewModel = new ViewModelProvider(getActivity()).get(LoginViewModel.class);
         if(loginViewModel.getUser().getValue() != null){
             NavDirections action = MobileNavigationDirections.actionGlobalToNavHome();
-            Navigation.findNavController(root).navigate(action);
-            return root;
+            Navigation.findNavController(view).navigate(action);
+            return;
         }
         //starts sign in process on login button
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.auth_client_id)).requestEmail().requestProfile().build();
         final GoogleSignInClient signInClient = GoogleSignIn.getClient(getContext(),gso);
-        buttonLogin = (Button) root.findViewById(R.id.buttonLogin);
-        buttonRegister= (Button) root.findViewById(R.id.buttonRegister);
+        buttonLogin = (Button) view.findViewById(R.id.buttonLogin);
+        buttonRegister= (Button) view.findViewById(R.id.buttonRegister);
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -106,7 +113,6 @@ public class LoginFragment extends Fragment {
                 }
             }
         });
-        return root;
     }
 
     //------------------------------------------------------------------------------------------
@@ -161,6 +167,7 @@ public class LoginFragment extends Fragment {
                                     }else{
                                         setRestaurants(favorites);
                                     }
+
                                     navController.navigate(R.id.action_global_to_nav_home);
                                 }
                             }else{
