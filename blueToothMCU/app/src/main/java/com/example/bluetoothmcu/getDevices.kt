@@ -21,21 +21,26 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import android.os.Handler
+import android.os.Message
+import androidx.activity.viewModels
+import androidx.lifecycle.ViewModelProvider
 import java.util.*
 private const val BLUETOOTH_CONNECT_REQUEST = 3
 
 const val MESSAGE_READ: Int = 0
 const val MESSAGE_WRITE: Int = 1
 const val MESSAGE_TOAST: Int = 2
+const val uuid: String = "00001101-0000-1000-8000-00805F9B34FB"
+
 
 class getDevices : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
-    private val uuid: UUID = UUID.fromString("7d9c03ce-5930-4467-ac85-140d9a47fcf4")
     private var device : BluetoothDevice? = null
     private val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     private lateinit var  tv: TextView
     private lateinit var  button: Button
     private lateinit var bluetoothService: MyBluetoothService
     private lateinit var handler: Handler
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i("CUSTOMA","get devices activity started")
         super.onCreate(savedInstanceState)
@@ -44,8 +49,22 @@ class getDevices : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResul
         tv = findViewById(R.id.tvResponse)
         button = findViewById(R.id.button)
         tv.setText("Information from bluetooth")
-        handler = Handler(tv)
-        getConnection()
+        val model = ViewModelProvider(this)[myViewModel::class.java]
+        model.device = device
+        val socket = device?.createRfcommSocketToServiceRecord(UUID.fromString(uuid))
+        socket?.connect()
+        model.socket = socket
+
+        //Log.i("CUSTOMA","${socket.toString()}")
+        Log.i("CUSTOMA","${device?.name}")
+
+        model.listen(tv)
+
+        button.setOnClickListener {
+            model.send("wuzzle\n",tv)
+        }
+
+
 
 
 
@@ -58,8 +77,8 @@ class getDevices : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResul
         if(EasyPermissions.hasPermissions(this,Manifest.permission.BLUETOOTH_ADMIN)){
             Log.i("CUSTOMA", "device name: ${device?.name}")
             Log.i(" CUSTOMA","newActivity started: waaa")
-            val thread = ConnectThread()
-            thread.start()
+
+
         }else{
             Log.i("CUSTOMA","need permission")
             EasyPermissions.requestPermissions(this,"I need bluetooth scan", BLUETOOTH_CONNECT_REQUEST, Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.BLUETOOTH)
@@ -83,113 +102,52 @@ class getDevices : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResul
 
 
 
-    @SuppressLint("MissingPermission")
-    private inner class ConnectThread: Thread() {
-        private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
-            device?.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
 
+
+
+
+
+}
+@SuppressLint("MissingPermission")
+class MyBluetoothService(activity: MainActivity): Thread(){
+    private var  cancelled: Boolean = false
+    private var serverSocket: BluetoothServerSocket?
+    private val activity = activity
+
+    init {
+        val btAdapter = BluetoothAdapter.getDefaultAdapter()
+        if (btAdapter != null) {
+            this.serverSocket =
+                btAdapter.listenUsingRfcommWithServiceRecord("phone", UUID.fromString(uuid))
+            this.cancelled = false
+        } else {
+            this.serverSocket = null
+            this.cancelled = true
         }
+    }
 
-        override fun run() {
-            Log.i("CUSTOMA","Thread start")
-            bluetoothAdapter.cancelDiscovery()
-
-            mmSocket?.let { socket->
-                socket.connect()
-                bluetoothService = MyBluetoothService(handler)
-                bluetoothService.ConnectedThread()
-
-
+    override fun run(){
+        var socket: BluetoothSocket
+        while(true){
+            if(this.cancelled){
+                break
             }
-        }
-        fun cancel (){
             try{
-                mmSocket?.close()
+                socket = serverSocket!!.accept()
             }catch(e:IOException){
-                Log.i("CUSTOMA","Could not close the connected socket",e)
+                Log.i("CUSTOMA","server socket accept failed")
+                break
+            }
+            if(!this.cancelled && socket != null){
+                Log.i("server","Connecting")
+                //BluetoothServer(this.activity,socket).start()
             }
         }
     }
-
-
-    fun manageMyConnectedSocket(bluetoothSocket: BluetoothSocket){
-        Log.i("CUSTOMA","bluetooth socket type:${bluetoothSocket.connectionType}")
-
+    fun cancel() {
+        this.cancelled = true
+        this.serverSocket!!.close()
     }
 }
-class MyBluetoothService(private val handler:Handler){
-    inner class ConnectedThread(private val mmSocket: BluetoothSocket): Thread() {
-        private val mmInStream: InputStream = mmSocket.inputStream
-        private val mmOutStream: OutputStream = mmSocket.outputStream
-        private val mmBuffer: ByteArray = ByteArray(1024)
-        override fun run() {
-            var numBytes: Int
-            while (true) {
-                numBytes = try {
-                    mmInStream.read(mmBuffer)
-                } catch (e: IOException) {
-                    Log.i("CUSTOMA", "Input stream was disconnected", e)
-                    break
-                }
-                val readMsg = handler.obtainMessage(MESSAGE_READ, numBytes, -1, mmBuffer)
-                readMsg.sendToTarget()
-            }
-        }
 
-        fun write(bytes: ByteArray) {
-            try {
-                mmOutStream.write(bytes)
-            } catch (e: IOException) {
-                Log.i("CUSTOMA", "Error occured when sending data", e)
-                val writeErrorMsg = handler.obtainMessage(MESSAGE_TOAST)
-                val bundle = Bundle().apply {
-                    putString("toast", "Couldn't send data to the other device")
-                }
-                writeErrorMsg.data = bundle
-                handler.sendMessage(writeErrorMsg)
-                return
-            }
-            val writtenMsg = handler.obtainMessage(MESSAGE_WRITE, -1, -1, mmBuffer)
-            writtenMsg.sendToTarget()
-        }
-
-        fun cancel() {
-            try {
-                mmSocket.close()
-            } catch (e: IOException) {
-                Log.i("CUSTOMA", "Could not close the connect socket", e)
-            }
-        }
-    }
-}
-class Handler(val tv: TextView) {
-    inner class msg() {
-        lateinit var data: Any
-        lateinit var tv: TextView
-        fun sendToTarget() {
-            val string: String = data as String
-            tv.setText(string)
-        }
-    }
-
-    private lateinit var bundle: Bundle
-    fun obtainMessage(msgCode: Int, a: Int, b: Int, bytes: ByteArray): msg {
-        val zeMsg = msg()
-        zeMsg.data = bytes
-        zeMsg.tv = tv
-        return zeMsg
-
-    }
-
-    fun obtainMessage(msgCode: Int): msg {
-        val zeMsg = msg()
-        zeMsg.tv = tv
-        return zeMsg
-    }
-
-    fun sendMessage(zeMsg: msg) {
-        val bundle: Bundle = zeMsg.data as Bundle
-        zeMsg.tv.setText("message from handler: ${bundle.getString("toast")}")
-    }
-}
 
